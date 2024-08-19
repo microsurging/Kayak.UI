@@ -1,0 +1,126 @@
+<template>
+  <BasicModal
+    @register="registerModal"
+    width="520px"
+    :title="getTitle"
+    :canFullscreen="false"
+    v-bind="$attrs"
+    @ok="handleSubmit"
+  >
+    <template v-if="!loading">
+      <BasicForm style="margin-top: 10px" @register="registerForm" />
+    </template>
+  </BasicModal>
+</template>
+<script lang="ts">
+  import { defineComponent, ref, computed, watch, unref } from 'vue';
+  import { BasicModal, useModalInner } from '/@/components/Modal';
+  import { BasicForm, useForm } from '/@/components/Form/index';
+  import { Form, Input } from 'ant-design-vue';
+  import { serviceRouteFormSchema } from '/@/views/servicemanage/serviceroute/data';
+  import type { FormInstance } from 'ant-design-vue';
+  import { useServiceRouteStore } from '/@/store/modules/serviceroute';
+  export default defineComponent({
+    name: 'DebugModal',
+    components: { BasicModal, Form, Input, Textarea: Input.TextArea, BasicForm },
+    emits: ['success', 'register'],
+    setup(_, { emit }) {
+      const serviceRouteStore = useServiceRouteStore();
+      const loading = ref(false);
+      const formRef = ref<FormInstance>();
+      const isUpdate = ref(true);
+      const lines = ref(10);
+      const rowId = ref('');
+      const regCenterT = ref(null);
+      const layout = {
+        labelCol: { span: 4 },
+        wrapperCol: { span: 19 },
+      };
+      const [registerForm, { setFieldsValue, resetFields, validate }] = useForm({
+        labelWidth: 100,
+        schemas: serviceRouteFormSchema,
+        showActionButtonGroup: false,
+        actionColOptions: {
+          span: 23,
+        },
+      });
+      const [registerModal, { setModalProps, closeModal, redoModalHeight }] = useModalInner(
+        async (data) => {
+          resetFields();
+          setModalProps({ confirmLoading: false });
+          isUpdate.value = !!data?.isUpdate;
+          regCenterT.value = data?.regCenterT ?? 0;
+          if (unref(isUpdate)) {
+            rowId.value = data.record.CategoryId;
+            setFieldsValue({
+              ...data.record,
+            });
+          }
+        },
+      );
+      function add(model: any, callback: Function) {
+        model.registryCenterType = unref(regCenterT);
+        serviceRouteStore
+          .addservicedescriptorApi({
+            model: model,
+          })
+          .then((data) => {
+            callback(data);
+          });
+      }
+
+      function modify(model: any, callback: Function) {
+        model.registryCenterType = unref(regCenterT);
+        serviceRouteStore
+          .modifyservicedescriptorApi({
+            model: model,
+          })
+          .then((data) => {
+            callback(data);
+          });
+      }
+
+      watch(
+        () => lines.value,
+        () => {
+          redoModalHeight();
+        },
+      );
+      const getTitle = computed(() => (!unref(isUpdate) ? '新增注册中心' : '编辑注册中心'));
+      async function handleSubmit() {
+        try {
+          await validate().then((p) => {
+            const callback = (result) => {
+              setModalProps({ confirmLoading: true });
+              closeModal();
+              emit('success', {
+                isUpdate: unref(isUpdate),
+                values: { ...p, CategoryId: rowId.value },
+              });
+            };
+            if (unref(isUpdate) == true) {
+              modify(p, callback);
+            } else {
+              add(p, callback);
+            }
+          });
+        } catch (error) {
+        } finally {
+          setModalProps({ confirmLoading: false });
+        }
+      }
+      return { registerModal, layout, loading, registerForm, formRef, getTitle, handleSubmit };
+    },
+  });
+</script>
+<style lang="less" scoped>
+  .ant-row {
+    ::v-deep .ant-col {
+      width: auto;
+    }
+  }
+
+  ::v-deep .ant-form-item {
+    padding-top: 5px;
+  }
+</style>

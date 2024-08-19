@@ -1,0 +1,14 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1
+  },
+  "1 error pnpm": {
+    "code": "ERR_PNPM_INVALID_OVERRIDE_SELECTOR",
+    "err": {
+      "name": "pnpm",
+      "message": "Cannot parse the \"//\" selector in the overrides",
+      "code": "ERR_PNPM_INVALID_OVERRIDE_SELECTOR",
+      "stack": "pnpm: Cannot parse the \"//\" selector in the overrides\n    at parsePkgSelector (C:\\Users\\VULCAN\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:119185:15)\n    at C:\\Users\\VULCAN\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:119177:22\n    at Array.map (<anonymous>)\n    at parseOverrides (C:\\Users\\VULCAN\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:119163:40)\n    at default_1 (C:\\Users\\VULCAN\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:119209:152)\n    at createReadPackageHook (C:\\Users\\VULCAN\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:120256:58)\n    at mutateModules (C:\\Users\\VULCAN\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:120002:32)\n    at async install (C:\\Users\\VULCAN\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:119976:24)\n    at async handler (C:\\Users\\VULCAN\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:121603:31)\n    at async C:\\Users\\VULCAN\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:176499:21"
+    }
+  }
+}
