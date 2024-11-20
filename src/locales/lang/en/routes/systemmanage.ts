@@ -5,4 +5,6 @@ export default {
   sysorgmanage: 'OrganizationManage',
   servicelog: 'ServiceLog',
   operatelog: 'OperateLog',
+  unitmanage: 'UnitManage',
+  datatypemanage:"DataTypeManage",
 };

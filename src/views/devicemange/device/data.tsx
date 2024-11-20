@@ -70,9 +70,8 @@ export function getTreeTableData() {
 export const deviceFormSchema: FormSchema[] = [
   {
     field: 'Code',
-    label: '设备编码1',
-    component: 'Input',
-    helpMessage: ['本字段演示异步验证', '不能输入带有admin的用户名'],
+    label: '设备编码',
+    component: 'Input', 
   },
   {
     field: 'Name',
@@ -109,5 +108,162 @@ export const deviceFormSchema: FormSchema[] = [
     label: '备注',
     field: 'Remark',
     component: 'InputTextArea',
+    componentProps: {
+      rows: 6,
+    },
   },
 ];
+
+export function getAttributeColumns(): BasicColumn[] {
+  return [
+    {
+      title: '属性标识',
+      dataIndex: 'propertyId',
+      sorter: true,
+      width: 150,
+    },
+    {
+      title: '属性名称',
+      dataIndex: 'propertyName',
+      width: 180,
+    },
+    {
+      title: '数据类型',
+      dataIndex: 'dataTypeName',
+      width: 180,
+      customRender: ({ record }) => {
+        return h('div', record.propDataType.name);;
+      },
+    },
+    {
+      title: '读写类型',
+      dataIndex: 'readWriteType',
+      width: 150,
+      customRender: ({ record }) => {
+        const readWriteType = record.readWriteType;
+        var array: any = [];
+        readWriteType.forEach((item: string) => {
+
+          switch (item) {
+            case "read":
+              {
+                var color = '#87d068';
+                array.push(h(Tag, { color: color }, () => "读"));
+                break;
+              }
+            case "write":
+              {
+                var color = '#f39c9c';
+                array.push(h(Tag, { color: color }, () => "写"));
+                break;
+              }
+            case "report":
+              {
+                var color = '#1677ffbf';
+                array.push(h(Tag, { color: color }, () => "上报"));
+                break;
+              }
+          }
+        });
+        return h('div', array);
+      },
+    },
+    {
+      title: '说明',
+      dataIndex: 'remark',
+      width: 150,
+    },
+  ];
+}
+
+export function getEventColumns(): BasicColumn[] {
+  return [
+    {
+      title: '事件标识',
+      dataIndex: 'EventId',
+      sorter: true,
+      width: 150,
+    },
+    {
+      title: '事件名称',
+      dataIndex: 'EventName',
+      width: 180,
+    },
+    {
+      title: '事件级别',
+      dataIndex: 'Eventlevel',
+      width: 180,
+      customRender: ({ record }) => {
+        const eventlevel = record.Eventlevel;
+        var array: any = [];
+
+        switch (eventlevel) {
+          case "ordinary":
+            {
+              var color = '#87d068';
+              array.push(h(Tag, { color: color }, () => "普通"));
+              break;
+            }
+          case "alarm":
+            {
+              var color = '#1677ffbf';
+              array.push(h(Tag, { color: color }, () => "告警"));
+              break;
+            }
+          case "emergency":
+            {
+              var color = '#f39c9c';
+              array.push(h(Tag, { color: color }, () => "紧急"));
+              break;
+            }
+        }
+        return h('div', array);
+      },
+    },
+    {
+      title: '说明',
+      dataIndex: 'Remark',
+      width: 200,
+    },
+  ];
+}
+
+export function getFunctionColumns(): BasicColumn[] {
+  return [
+    {
+      title: '功能标识',
+      dataIndex: 'FunctionId',
+      sorter: true,
+      width: 150,
+    },
+    {
+      title: '功能名称',
+      dataIndex: 'FunctionName',
+      width: 180,
+    },
+    {
+      title: '是否异步',
+      dataIndex: 'IsAsync',
+      width: 180,
+      customRender: ({ record }) => {
+        let isAsync = record.IsAsync;
+        var text = "异步"
+        var color = '#f39c9c';
+        if (isAsync === false) {
+          text = "不异步"
+
+        }
+        else {
+          var color = '#87d068';
+        }
+
+        return h(Tag, { color: color }, () => text)
+      },
+    },
+    {
+      title: '说明',
+      dataIndex: 'Remark',
+      width: 200,
+    },
+  ];
+}

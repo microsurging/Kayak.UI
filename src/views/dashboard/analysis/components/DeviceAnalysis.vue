@@ -1,41 +1,45 @@
 <template>
-  <Card title="当前在线" :loading="loading">
+  <Card title="设备数量" :loading="loading">
     <template #extra>
       <Tooltip placement="top">
         <template #title>
           <span>{{ t('common.redo') }}</span>
-        </template>
-        <RedoOutlined @click="redo" />
+        </template> 
       </Tooltip>
     </template>
-    <CountTo
-      :startVal="1"
-      :endVal="7"
-      style="font-size: 30px; color: rgba(0, 0, 0, 0.85); padding-left: 24px"
-    />
-    <div ref="chartRef" :style="{ width, height }"> </div>
+    <div class="md:flex enter-y">
+      <div class="md:w-3/4 w-full">
+        <CountTo :startVal="1"
+                 :endVal="total"
+                 style="font-size: 50px; color: rgba(0, 0, 0, 0.85); padding-left: 24px" />
+      </div>
+
+
+      <div class="md:w-1/4 !md:ml-1 w-full">
+        <img src="\src\assets\images\device.jpg" />
+      </div>
+    </div>
     <template #actions>
-      <span
-        style="
-          text-align: left;
-          width: 100%;
-          display: block;
-          padding-left: 24px;
-          color: rgba(0, 0, 0, 0.65);
-        "
-        >设备总数 <CountTo :startVal="1" :endVal="699890" style="padding-left: 5px"
-      /></span>
+      <div class="md:flex enter-y">
+        <div class="md:w-1/4 w-full"> <a-badge status="success" text="正常" /> </div>  <div class="md:w-1/4 w-full">
+          <CountTo :startVal="1" :endVal="jsonData.NormalCount" style="padding-left: 5px" />
+        </div>  <div class="md:w-1/4 w-full"> <a-badge status="error" text="禁用" /> </div>  <div class="md:w-1/4 w-full">
+          <CountTo :startVal="1" :endVal="jsonData.DisableCount" style="padding-left: 5px" />
+        </div>
+      </div>
     </template>
   </Card>
 </template>
-<script lang="ts" setup>
-  import { Ref, ref, watch } from 'vue';
+<script lang="ts" setup>import { Ref, ref, watch } from 'vue';
   import { CountTo } from '/@/components/CountTo/index';
   import { Card, Tooltip, Tag } from 'ant-design-vue';
   import { RedoOutlined } from '@ant-design/icons-vue';
   import { useI18n } from '/@/hooks/web/useI18n';
+    import { useDeviceStore } from '/@/store/modules/device';
   const { t } = useI18n();
-  const redo = () => {};
+  const redo = () => { };
+  const jsonData = ref({});
+  const total = ref(0);
   import { useECharts } from '/@/hooks/web/useECharts';
   const props = defineProps({
     loading: Boolean,
@@ -51,7 +55,15 @@
   const chartRef = ref<HTMLDivElement | null>(null);
 
   const { setOptions } = useECharts(chartRef as Ref<HTMLDivElement>);
-
+    function getData() {
+      var deviceStore = useDeviceStore();
+      deviceStore.getdevicetotalstatisticsApi().then(response => {
+      var data= response.Result
+      jsonData.value = data;
+      total.value = data.NormalCount + data.DisableCount;
+    });
+  }
+  getData();
   watch(
     () => props.loading,
     () => {
@@ -127,17 +139,20 @@
       });
     },
     { immediate: true },
-  );
-</script>
+  );</script>
 <style lang="less" scoped>
   ::v-deep .ant-card-body {
     padding: 0px 10px 10px 10px;
   }
-
+  ::v-deep .ant-card-actions {
+    border-top: 1px solid #e6e5e5;
+  }
   ::v-deep .ant-card-head {
     border-width: 0px;
   }
-
+  ::v-deep .ant-card-actions {
+    border-top: 1px solid #e6e5e5;
+  }
   ::v-deep .ant-card-head-title {
     padding: 20px 0 0 0px;
     color: rgba(0, 0, 0, 0.45);

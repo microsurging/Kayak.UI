@@ -65,8 +65,9 @@
 
       function modify(model: any, callback: Function) {
         model.Id = unref(Id);
+        model.ParentCode = unref(parentCode);
         sysDicManageStore
-          .modifyApi({
+          .aggregationModifyApi({
             model: model,
           })
           .then((data) => {
@@ -77,7 +78,7 @@
       function add(model: any, callback: Function) {
         model.parentCode = unref(parentCode);
         sysDicManageStore
-          .addApi({
+          .aggregationAddApi({
             model: model,
           })
           .then((data) => {

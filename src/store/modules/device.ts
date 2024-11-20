@@ -6,6 +6,7 @@ import {
   deviceByIdParams,
   editDeviceModel,
   editParams,
+  deviceAggModel
 } from '/@/api/devicemange/model/deviceModel';
 import {
   getpageasyncApi,
@@ -14,8 +15,10 @@ import {
   changedisableApi,
   getdevicebyconditionApi,
   addApi,
+  getdevicemodelApi,
   validateApi,
   deletebyIdApi,
+  getdevicetotalstatisticsApi,
 } from '/@/api/devicemange/device';
 export const useDeviceStore = defineStore({
   id: 'app-device',
@@ -24,6 +27,14 @@ export const useDeviceStore = defineStore({
       try {
         const { ...devicePageParams } = params;
         const data = await getpageasyncApi(devicePageParams);
+        return data;
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    async getdevicetotalstatisticsApi(): Promise<any> {
+      try {
+        const data = await getdevicetotalstatisticsApi();
         return data;
       } catch (error) {
         return Promise.reject(error);
@@ -56,19 +67,19 @@ export const useDeviceStore = defineStore({
         return Promise.reject(error);
       }
     },
-    async changeenableApi(params: editParams): Promise<editDeviceModel | null> {
+    async changeenableApi(params: deviceByIdParams): Promise<editDeviceModel | null> {
       try {
-        const { ...editParams } = params;
-        const data = await changeenableApi(editParams);
+        const { ...deviceByIdParams } = params;
+        const data = await changeenableApi(deviceByIdParams);
         return data;
       } catch (error) {
         return Promise.reject(error);
       }
     },
-    async changedisableApi(params: editParams): Promise<editDeviceModel | null> {
+    async changedisableApi(params: deviceByIdParams): Promise<editDeviceModel | null> {
       try {
-        const { ...editParams } = params;
-        const data = await changedisableApi(editParams);
+        const { ...deviceByIdParams } = params;
+        const data = await changedisableApi(deviceByIdParams);
         return data;
       } catch (error) {
         return Promise.reject(error);
@@ -78,6 +89,14 @@ export const useDeviceStore = defineStore({
       try {
         const { ...editParams } = params;
         const data = await addApi(editParams);
+        return data;
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    async getdevicemodelApi(params: { deviceId: number }): Promise<deviceAggModel | null> {
+      try { 
+        const data = await getdevicemodelApi(params);
         return data;
       } catch (error) {
         return Promise.reject(error);

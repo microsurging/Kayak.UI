@@ -16,6 +16,7 @@ enum Api {
   deletebyId = '/sysorganization/deletebyId',
   validate = '/sysorganization/validate',
   modify = '/sysorganization/modify',
+  getorgcompany = '/sysorganization/getorgcompany',
   add = '/sysorganization/add',
 }
 export function getsysorganizationbyconditionApi(
@@ -26,6 +27,19 @@ export function getsysorganizationbyconditionApi(
     {
       url: Api.getsysorganizationbycondition,
       params,
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
+export function getorgcompanyApi( 
+  mode: ErrorMessageMode = 'modal',
+) {
+  return defHttp.post<sysOrgListModel>(
+    {
+      url: Api.getorgcompany, 
     },
     {
       errorMessageMode: mode,

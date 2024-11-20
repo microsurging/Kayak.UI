@@ -8,6 +8,7 @@ import {
   editSysDicModel,
   editParams,
   sysDicPageParams,
+  aggregationSysDicByIdParams
 } from '/@/api/sys/model/dictionarymanageModel';
 import {
   getpageasyncApi,
@@ -19,6 +20,10 @@ import {
   addApi,
   validateApi,
   deletebyIdApi,
+  aggregationAddApi,
+  aggregationDeletebyIdApi,
+  aggregationModifyApi,
+  getaggsysdicbyparcodeApi
 } from '/@/api/sys/dictionarymanage';
 export const useSysDicManageStore = defineStore({
   id: 'app-sysdicmanage',
@@ -49,6 +54,17 @@ export const useSysDicManageStore = defineStore({
       try {
         const { ...sysDicByParentCodeParams } = params;
         const data = await getsysdicbyparentcodeApi(sysDicByParentCodeParams);
+        return data.Result ?? data.result;
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    async getaggsysdicbyparcodeApi(
+      params: sysDicByParentCodeParams,
+    ): Promise<sysDicListModel | null> {
+      try {
+        const { ...sysDicByParentCodeParams } = params;
+        const data = await getaggsysdicbyparcodeApi(sysDicByParentCodeParams);
         return data.Result ?? data.result;
       } catch (error) {
         return Promise.reject(error);
@@ -94,6 +110,33 @@ export const useSysDicManageStore = defineStore({
       try {
         const { ...editParams } = params;
         const data = await addApi(editParams);
+        return data;
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    async aggregationDeletebyIdApi(params: aggregationSysDicByIdParams): Promise<editSysDicModel | null> {
+      try {
+        const { ...aggregationSysDicByIdParams } = params;
+        const data = await aggregationDeletebyIdApi(aggregationSysDicByIdParams);
+        return data;
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    async aggregationModifyApi(params: editParams): Promise<editSysDicModel | null> {
+      try {
+        const { ...editParams } = params;
+        const data = await aggregationModifyApi(editParams);
+        return data;
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    async aggregationAddApi(params: editParams): Promise<editSysDicModel | null> {
+      try {
+        const { ...editParams } = params;
+        const data = await aggregationAddApi(editParams);
         return data;
       } catch (error) {
         return Promise.reject(error);

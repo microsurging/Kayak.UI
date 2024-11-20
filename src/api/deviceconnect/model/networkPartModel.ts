@@ -6,27 +6,41 @@ export interface protocolManageParams {
   };
 }
 
+export interface editNetworkPartParams {
+  model: networkPartModel;
+}
+
+export interface editProtocolManageParams {
+  model: protocolManageModel;
+}
+
 export interface protocolManageByIdParams {
   ids: [];
 }
 
-export interface NetworkPartParams {
+export interface networkPartByIdParams {
+  ids: [];
+}
+
+
+export interface networkPartParams {
   query: {
     name: string;
-    componentType: string;
+    componentTypeId: string;
+    status: number | null;
     page: number;
     pageSize: number;
   };
 }
 
-export interface NetworkPartPageModel {
+export interface networkPartPageModel {
   entity: {
     Result: {
       pageIndex: number;
       pageCount: number;
       total: number;
       pageSize: number;
-      items: NetworkPartModel[];
+      items: networkPartModel[];
     };
     Code: number;
     Msg: string;
@@ -40,15 +54,57 @@ export interface protocolManageModel {
   protocolCode: string;
   protocolName: string;
   componentType: string;
-  status: string;
-  className: string;
-  fileAddress: string;
-
+  fileId: string | null;
+  script: string | null;
+  status: number;
+  connProtocol: string | null;
+  className: string|null;
+  fileAddress: string|null;
   createDate: Date;
   updateDate: Date;
 }
 
+export interface networkPartList
+{
+  entity: {
+    Result: networkPartModel[];
+    Code: number;
+    Msg: string;
+  };
+  isSucceed: boolean;
+  message: string;
+  statusCode: number;
+}
+
+export interface protocolManageList {
+  entity: {
+    Result: protocolManageModel[];
+    Code: number;
+    Msg: string;
+  };
+  isSucceed: boolean;
+  message: string;
+  statusCode: number;
+}
+
+export interface netPartDictionaryModel {
+  name: string;
+  code: string;
+  value: number | null;
+}
+
 export interface editProtocolManageModel {
+  entity: {
+    Result: Boolean;
+    Code: number;
+    Msg: string;
+  };
+  isSucceed: boolean;
+  message: string;
+  statusCode: number;
+}
+
+export interface editNetworkPartModel {
   entity: {
     Result: Boolean;
     Code: number;
@@ -76,12 +132,45 @@ export interface protocolManagePageModel {
   statusCode: number;
 }
 
-export interface NetworkPartModel {
+export interface networkPartAggregationModel {
+  id: number;
   name: string;
-  componentType: string;
-  clusterMode: string;
+  componentTypeId: number;
+  clusterModeId: number;
+  isMulticast: boolean | null;
   status: string;
   enableSSL: boolean;
+  enableSwagger: boolean | null;
+  enableWebService: boolean | null;
+  enableTLS: boolean | null;
+  resolveMode: number | null;
+  fixedLength: number | null;
+  delimited: string;
+  maxMessageLength: number | null;
+  ruleScript: string;
+  host: string;
+  port: number;
+  createDate: Date;
+  updateDate: Date;
+  remark: string;
+  ComponentType: netPartDictionaryModel;
+  ClusterMode: netPartDictionaryModel;
+}
+export interface networkPartModel {
+  id: number|null
+  name: string;
+  componentTypeId: number;
+  clusterModeId: number;
+  status: string;
+  isMulticast: boolean | null;
+  enableSwagger: boolean | null;
+  enableWebService: boolean | null;
+  enableSSL: boolean;
+  enableTLS: boolean | null;
+  resolveMode: number | null;
+  fixedLength: number | null;
+  delimited: string;
+  maxMessageLength: number | null;
   ruleScript: string;
   host: string;
   port: number;

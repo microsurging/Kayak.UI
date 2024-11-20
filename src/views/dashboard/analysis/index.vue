@@ -1,12 +1,12 @@
 <template>
   <div class="p-4" style="margin: 0px; padding: 16px 10px">
     <div class="md:flex enter-y">
-      <DeviceAnalysis class="md:w-1/4 w-full" :loading="loading" />
-      <DeviceMessageAnalysis class="md:w-1/4 !md:mx-4 !md:my-0 !my-4 w-full" :loading="loading" />
-      <CPUUtilizationRate class="md:w-1/4 w-full" :loading="loading" />
-      <MemoryUtilizationRate class="md:w-1/4 !md:ml-4 w-full" :loading="loading" />
+      <ProductAnalysis class="md:w-1/4 w-full" :loading="loading" />
+      <DeviceAnalysis class="md:w-1/4 !md:mx-4 !md:my-0 !my-4 w-full" :loading="loading" />
+      <DeviceOnlineAnalysis class="md:w-1/4 w-full" :loading="loading" />
+      <DeviceMessageAnalysis class="md:w-1/4 !md:ml-4 w-full" :loading="loading" /> 
     </div>
-    <SiteAnalysis class="!my-4 enter-y" :loading="loading" />
+    <SiteAnalysis class="!my-2 enter-y" :loading="loading" />
   </div>
 </template>
 <script lang="ts" setup>
@@ -17,10 +17,12 @@
   import CPUUtilizationRate from './components/CPUUtilizationRate.vue';
   import MemoryUtilizationRate from './components/MemoryUtilizationRate.vue';
   import DeviceMessageAnalysis from './components/DeviceMessageAnalysis.vue';
+  import DeviceOnlineAnalysis from './components/DeviceOnlineAnalysis.vue';
+  import ProductAnalysis from './components/ProductAnalysis.vue';
   import DeviceAnalysis from './components/DeviceAnalysis.vue';
   const loading = ref(true);
 
   setTimeout(() => {
     loading.value = false;
-  }, 1500);
+  }, 50);
 </script>

@@ -26,7 +26,7 @@
           :actions="[
             {
               label: '编辑',
-              tooltip: '编辑注册中心',
+              tooltip: '编辑用户',
               icon: 'clarity:note-edit-line',
               onClick: handleEdit.bind(null, record),
             },

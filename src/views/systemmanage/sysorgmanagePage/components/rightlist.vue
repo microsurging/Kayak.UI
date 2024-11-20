@@ -21,7 +21,7 @@
           :actions="[
             {
               label: '编辑',
-              tooltip: '编辑注册中心',
+              tooltip: '编辑机构',
               icon: 'clarity:note-edit-line',
               onClick: handleEdit.bind(null, record),
             },
@@ -72,12 +72,12 @@
         total,
       });
 
-      emitter.on('selectChanged', (value: string) => {
+      emitter.on('sysorgselectChanged', (value: string) => {
         parentCode.value = value;
         GetPage();
       });
       onBeforeUnmount(() => {
-        emitter.off('selectChanged', (v: string) => {}); //关闭
+        emitter.off('sysorgselectChanged', (v: string) => {}); //关闭
       });
       function getFormConfig(): Partial<FormProps> {
         return {
@@ -181,7 +181,7 @@
         });
       }
       function handleModalSuccess() {
-        emitter.emit('editChange', null);
+        emitter.emit('sysorgeditChange', null);
         GetPage();
       }
 

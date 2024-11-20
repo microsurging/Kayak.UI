@@ -8,7 +8,13 @@ export default {
   edit: 'Edit',
   cancelpublish: 'CancelPublish',
   republish: 'Republish',
+  stop: 'Stop',
+  open: 'Open',
+  'w-open': 'Do you want to open ?',
+  'c-stop': 'Do you want to stop？',
   'w-republish': 'Do you want to republish ?',
   'c-publish': 'Do you want to cancel the publication？',
   delete: 'Delete',
+  addprotocol: 'AddProtocol',
+  editprotocol: 'EditProtocol',
 };

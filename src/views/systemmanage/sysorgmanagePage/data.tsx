@@ -1,11 +1,13 @@
-import { h } from 'vue';
+import { h ,ref, unref} from 'vue';
 import { Tag } from 'ant-design-vue';
 import { BasicColumn } from '/@/components/Table/src/types/table';
+import { useSysOrgManageStore } from '/@/store/modules/sysorgmanage';
 import { useSysDicManageStore } from '/@/store/modules/sysdicmanage';
 import { FormProps, FormSchema } from '/@/components/Table';
 import { RuleObject } from 'ant-design-vue/es/form/interface';
+const sysOrgManageStore = useSysOrgManageStore();
 const sysDicManageStore = useSysDicManageStore();
-
+let Id = ref(0);
 export function getBasicColumns(): BasicColumn[] {
   return [
     {
@@ -90,16 +92,22 @@ export function getFormConfig(): Partial<FormProps> {
   };
 }
 
+export function setId(id: number) { 
+  Id.value = id; 
+}
+
 async function validateName(name: string) {
-  const data = await sysDicManageStore.validateApi({
+
+  const data = await sysOrgManageStore.validateApi({
     model: {
+      id: unref(Id),
       name: name,
     },
   });
   return data;
 }
 
-export const registrycenterFormSchema: FormSchema[] = [
+export const sysorgmanageFormSchema: FormSchema[] = [
   {
     field: 'Name',
     label: '机构名称:',

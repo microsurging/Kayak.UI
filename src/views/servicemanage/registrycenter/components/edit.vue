@@ -88,8 +88,7 @@
       );
       const getTitle = computed(() => (!unref(isUpdate) ? '新增注册中心' : '编辑注册中心'));
       async function handleSubmit() {
-        try {
-          console.log('parentId', parentId);
+        try { 
           await validate().then((p) => {
             const callback = (result) => {
               setModalProps({ confirmLoading: true });

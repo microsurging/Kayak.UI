@@ -36,6 +36,7 @@ module.exports = defineConfig({
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/ban-types': 'off',
+   'no-irregular-whitespace': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-unused-vars': [

@@ -5,18 +5,19 @@
     :model="formData"
     :rules="getFormRules"
     ref="formRef"
+    layout="vertical"
     v-show="getShow"
     @keypress.enter="handleLogin"
   >
-    <FormItem name="account" class="enter-x">
+    <FormItem name="account" class="enter-x" :label="t('sys.login.userName')">
       <Input
-        size="large"
+         size="large" 
         v-model:value="formData.account"
         :placeholder="t('sys.login.userName')"
         class="fix-auto-fill"
       />
     </FormItem>
-    <FormItem name="password" class="enter-x">
+    <FormItem name="password" class="enter-x" :label="t('sys.login.password')">
       <InputPassword
         size="large"
         visibilityToggle

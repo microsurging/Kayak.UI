@@ -54,6 +54,8 @@
         getList(null);
       });
       onBeforeUnmount(() => {
+
+        emitter.emit('dicselectChanged', (v: string | null) => { });
         emitter.off('editChange', (v: string | null) => {}); //关闭
       });
       function getList(_preKey: string | null, _tns?: TreeDataItem[]) {
@@ -68,8 +70,7 @@
           })
           .then((response) => {
             const list = response;
-            if (list != null) {
-              console.log('odd', tns);
+            if (list != null) { 
               for (let i = 0; i < list?.length; i++) {
                 tns.value[0].children.push({ key: list[i].Code, title: list[i].Name });
               }
@@ -78,7 +79,7 @@
           });
       }
       const onTreeNodeSelect = (treeNode: any) => {
-        emitter.emit('selectChanged', treeNode[0] || 'none');
+        emitter.emit('dicselectChanged', treeNode[0] || 'none');
       };
 
       const onLoadData = (treeNode: any) => {

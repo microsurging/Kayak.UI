@@ -5,7 +5,8 @@ import {
   productPageModel,
   prdAggregationPageModel,
   productByIdParams,
-  editProductModel,
+  editProductModel, 
+  prdAggregationModel,
   editParams,
 } from './model/productModel';
 
@@ -22,6 +23,8 @@ enum Api {
   open = '/product/open',
   stop = '/product/stop',
   add = '/product/add',
+  getproductstatistics ='/product/getproductstatistics',
+  getproductbyid ='/prdaggregation/getproductbyid'
 }
 export function getproductbyconditionApi(
   params: productPageParams,
@@ -38,8 +41,34 @@ export function getproductbyconditionApi(
   );
 }
 
-export function getproductsApi(mode: ErrorMessageMode = 'modal') {
+export function getproductbyidApi(
+  params: { id: number },
+  mode: ErrorMessageMode = 'modal',
+) {
+  return defHttp.post<prdAggregationModel>(
+    {
+      url: Api.getproductbyid,
+      params,
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
+export function getproductstatisticsApi(mode: ErrorMessageMode = 'modal') {
   return defHttp.post<productList>(
+    {
+      url: Api.getproductstatistics,
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
+export function getproductsApi(mode: ErrorMessageMode = 'modal') {
+  return defHttp.post<any>(
     {
       url: Api.aggregation_getproducts,
     },

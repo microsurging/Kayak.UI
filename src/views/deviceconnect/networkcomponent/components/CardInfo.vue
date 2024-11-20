@@ -2,16 +2,16 @@
   <div class="cardInfo">
     <div>
       <p>组件类型</p>
-      <p>{{ activeUser }}</p>
+      <p>{{ componentType.name }}</p>
     </div>
     <div>
       <p>端口号</p>
-      <p>{{ newUser }}</p>
+      <p>{{ port }}</p>
     </div>
     <div>
       <p>启动状态</p>
       <p>
-        <a-popconfirm :title="confirmTitle" @confirm="confirm" @cancel="cancel">
+        <a-popconfirm :title="confirmTitle" @confirm="confirm(componentId)" @cancel="cancel">
           <a-switch
             slot="actions"
             v-model:checked="state"
@@ -30,15 +30,20 @@
 <script>
   import { defineComponent, ref } from 'vue';
   import { Switch } from 'ant-design-vue';
+  import { useNetworkPartStore } from '/@/store/modules/networkPart';
   export default defineComponent({
     name: 'CardInfo',
     components: { Switch },
     props: {
-      activeUser: {
+      componentType: {
+        type: [Object],
+        default: 0,
+      },
+      componentId: {
         type: [String, Number],
         default: 0,
       },
-      newUser: {
+      port: {
         type: [String, Number],
         default: 0,
       },
@@ -48,10 +53,10 @@
       },
     },
     setup(props) {
-      const state = ref(props.state);
+      const networkPartStore = useNetworkPartStore();
+      const state = ref(props.state); 
       const confirmTitle = ref('');
-      const handleChange = (checked) => {
-        console.log(checked);
+      const handleChange = (checked) => { 
       };
       const handleClick = (checked) => {
         state.value = !state.value;
@@ -61,25 +66,31 @@
           confirmTitle.value = '是否停止';
         }
       };
-      const confirm = (e) => {
+      const confirm = async (id) => {
+        var ids = [];
+        ids.push(id);
+        if (state.value)
+          await networkPartStore.shundownnetworkApi({
+            id: id,
+          });
+        else
+          await networkPartStore.createnetworkApi({
+            id: id,
+          });
         state.value = !state.value;
-        console.log(e);
-        return new Promise((resolve) => {
-          setTimeout(() => resolve(true), 300);
-        });
       };
 
-      const cancel = (e) => {
-        console.log(e);
+      const cancel = (e) => { 
       };
-      const activeUser = props.activeUser;
-      const newUser = props.newUser;
-
+      const componentType = props.componentType;
+      const port = props.port;
+      const componentId = props.componentId;
       return {
         handleChange,
+        componentId,
         handleClick,
-        activeUser,
-        newUser,
+        componentType, 
+        port,
         state,
         confirmTitle,
         confirm,

@@ -6,6 +6,7 @@ import {
   deviceByIdParams,
   editDeviceModel,
   editParams,
+  deviceAggModel,
 } from './model/deviceModel';
 
 import { ErrorMessageMode } from '/#/axios';
@@ -19,6 +20,8 @@ enum Api {
   add = '/device/add',
   changeenable = '/device/changeenable',
   changedisable = '/device/changedisable',
+  getdevicemodel = '/deviceagg/getdevicemodel', 
+  getdevicetotalstatistics = '/device/getdevicetotalstatistics',
 }
 export function getdevicebyconditionApi(
   params: devicePageParams,
@@ -28,6 +31,17 @@ export function getdevicebyconditionApi(
     {
       url: Api.getdevicebycondition,
       params,
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
+export function getdevicetotalstatisticsApi(mode: ErrorMessageMode = 'modal') {
+  return defHttp.post<any>(
+    {
+      url: Api.getdevicetotalstatistics,
     },
     {
       errorMessageMode: mode,
@@ -99,6 +113,18 @@ export function addApi(params: editParams, mode: ErrorMessageMode = 'modal') {
   return defHttp.post<editDeviceModel>(
     {
       url: Api.add,
+      params,
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
+export function getdevicemodelApi(params: { deviceId: number }, mode: ErrorMessageMode = 'modal') {
+  return defHttp.post<deviceAggModel>(
+    {
+      url: Api.getdevicemodel,
       params,
     },
     {

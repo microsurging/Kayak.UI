@@ -10,6 +10,11 @@ export interface sysDicByIdParams {
   ids: [];
 }
 
+export interface aggregationSysDicByIdParams {
+  parentCode: string | null;
+  ids: [];
+}
+
 export interface sysDicByParentCodeParams {
   parentCode: string | null;
 }

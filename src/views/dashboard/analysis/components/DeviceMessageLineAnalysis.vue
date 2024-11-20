@@ -2,16 +2,58 @@
   <div ref="chartRef" :style="{ height, width }"></div>
 </template>
 <script lang="ts" setup>
-  import { onMounted, ref, Ref } from 'vue';
-  import { useECharts } from '/@/hooks/web/useECharts';
-  import { basicProps } from './props';
-  defineProps({
-    ...basicProps,
+  import { onMounted, ref, Ref, unref, onBeforeUnmount } from 'vue';
+  import { useECharts } from '/@/hooks/web/useECharts'; 
+  import { useDeviceMsgTotalStore } from '/@/store/modules/devicemessage';
+  import moment from 'moment';
+  import emitter from '/@/utils/eventbus';
+  import { deviceMsgProps } from './props';
+import { integer } from 'vue-types';
+  const props =  defineProps({
+    ...deviceMsgProps,
   });
+  const jsonData = ref({});
   const chartRef = ref<HTMLDivElement | null>(null);
   const { setOptions } = useECharts(chartRef as Ref<HTMLDivElement>);
+  const categoryData = ref<any>([]);
+  const beginDate = ref<any>(props.startDate);
+  const endDate = ref<any>(props.endDate);
+  const contentData = ref<any>([]);
+  const maxContent = ref<number>(0);
+  function getData() {
+    var deviceMsgTotalStore = useDeviceMsgTotalStore();
+    deviceMsgTotalStore.getgroupstatisticsApi({ startDate: unref(beginDate), endDate: unref(endDate) }).then(response => {
+      var data = response.result
+      jsonData.value = data;
+      categoryData.value = [];
+      contentData.value = [];
+      for (var i = 0; i < data.length; i++) {
+        var dateMoment = moment(data[1].date);
+        if (moment(data[0].date).hour()>0 || dateMoment.hour() > 0 )
+        {
 
-  onMounted(() => {
+          categoryData.value.push(moment(data[i].date).format("HH:mm"));
+        }
+        else {
+          categoryData.value.push(moment(data[i].date).format("MM-DD"));
+        }
+        contentData.value.push(data[i].count.toString());
+        if (maxContent.value < data[i].count)
+          maxContent.value = Number( data[i].count);
+      }
+      handle();
+      console.log(223444);
+    });
+  }
+  emitter.on('deviceMegselectChanged', (value: string) => {
+    beginDate.value = value.beginTime;
+    endDate.value = value.overTime; 
+    getData();
+  });
+  onBeforeUnmount(() => {
+    emitter.off('deviceMegselectChanged', (v: string) => { }); //关闭
+  });
+  function handle() {
     setOptions({
       tooltip: {
         trigger: 'axis',
@@ -25,26 +67,7 @@
       xAxis: {
         type: 'category',
         boundaryGap: false,
-        data: [
-          '6:00',
-          '7:00',
-          '8:00',
-          '9:00',
-          '10:00',
-          '11:00',
-          '12:00',
-          '13:00',
-          '14:00',
-          '15:00',
-          '16:00',
-          '17:00',
-          '18:00',
-          '19:00',
-          '20:00',
-          '21:00',
-          '22:00',
-          '23:00',
-        ],
+        data: unref(categoryData),
         splitLine: {
           show: false,
           lineStyle: {
@@ -60,7 +83,7 @@
       yAxis: [
         {
           type: 'value',
-          max: 80000,
+          max: Number(unref(maxContent)),
           splitNumber: 4,
           axisTick: {
             show: false,
@@ -81,15 +104,12 @@
           },
         },
       ],
-      grid: { left: '1%', right: '1%', top: '2  %', bottom: 0, containLabel: true },
+      grid: { left: '1%', right: '1%', top: '10  %', bottom: 0, containLabel: true },
       series: [
         {
           smooth: true,
           symbol: 'none',
-          data: [
-            111, 222, 4000, 18000, 33333, 55555, 66666, 33333, 14000, 36000, 66666, 44444, 22222,
-            11111, 4000, 2000, 500, 333, 222, 111,
-          ],
+          data: unref(contentData),
           type: 'line',
           areaStyle: {},
           itemStyle: {
@@ -98,5 +118,9 @@
         },
       ],
     });
+  }
+  onMounted(() => {
+    getData();
+   
   });
 </script>

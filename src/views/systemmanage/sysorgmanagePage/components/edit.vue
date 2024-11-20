@@ -18,7 +18,7 @@
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { useSysOrgManageStore } from '/@/store/modules/sysorgmanage';
   import { Form, Input } from 'ant-design-vue';
-  import { registrycenterFormSchema } from '../data';
+  import { sysorgmanageFormSchema, setId } from '../data';
   import type { FormInstance } from 'ant-design-vue';
   export default defineComponent({
     name: 'DebugModal',
@@ -30,7 +30,7 @@
       const isUpdate = ref(true);
       const lines = ref(10);
       const rowId = ref('');
-      let Id = ref<number>(0);
+      let Id: number = 0;
       const parentCode = ref('');
       const layout = {
         labelCol: { span: 4 },
@@ -39,7 +39,7 @@
       const sysOrgManageStore = useSysOrgManageStore();
       const [registerForm, { setFieldsValue, resetFields, validate }] = useForm({
         labelWidth: 100,
-        schemas: registrycenterFormSchema,
+        schemas: sysorgmanageFormSchema,
         showActionButtonGroup: false,
         actionColOptions: {
           span: 23,
@@ -51,6 +51,7 @@
           setModalProps({ confirmLoading: false });
           isUpdate.value = !!data?.isUpdate;
           Id = unref(data?.record?.Id ?? 0);
+          setId(Id);
           parentCode.value = data?.parentCode ?? '';
           if (unref(isUpdate)) {
             rowId.value = data.record.CategoryId;
@@ -62,7 +63,7 @@
       );
 
       function modify(model: any, callback: Function) {
-        model.Id = unref(Id);
+        model.Id =  Id;
         sysOrgManageStore
           .modifyApi({
             model: model,
@@ -89,7 +90,7 @@
           redoModalHeight();
         },
       );
-      const getTitle = computed(() => (!unref(isUpdate) ? '新增字典' : '编辑字典'));
+      const getTitle = computed(() => (!unref(isUpdate) ? '新增机构' : '编辑机构'));
       async function handleSubmit() {
         try {
           await validate().then((p) => {

@@ -1,220 +1,188 @@
 <template>
-  <BasicDrawer
-    v-bind="$attrs"
-    @register="registerDrawer"
-    showFooter
-    :title="getTitle"
-    width="500px"
-    @ok="handleSubmit"
-  >
-    <BasicForm @register="registerForm">
-      <template #Script="{ model, field }">
-        <CodeEditor
-          v-model:value="model[field]"
-          style="height: 260px; width: 380px"
-          :mode="modeValue"
-        />
-      </template>
-    </BasicForm>
-  </BasicDrawer>
+  <BasicModal v-bind="$attrs"
+              @register="registerModal"
+              width="480px"
+              :title="getTitle"
+              :showCancelBtn="true"
+              :showOkBtn="true"
+              helpMessage="处理消息"
+              @ok="handleSubmit">
+    <template v-if="!loading">
+      <div className="App">
+        <a-form layout="vertical" ref="formRef" :model="formData">
+          <a-row :gutter="16">
+            <a-col :span="8">
+              <a-image :width="150"
+                       :height="150"
+                       src="\src\assets\images\product_b.png"
+                       fallback="data:image/png;base64,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" />
+
+            </a-col>
+            <a-col :span="16">
+              <a-row :gutter="16">
+                <a-col :span="24">
+                  <a-form-item name="productCode" label="ID:" :rules="[{ required: true }]">
+                    <a-tooltip title="产品标识">
+                      <a-input v-model:value="formData.productCode" placeholder="请输入ID" />
+                    </a-tooltip>
+                  </a-form-item>
+                </a-col>
+                <a-col :span="24" :style="{ marginTop: '-8px' }">
+                  <a-form-item name="productName" label="名称" :rules="[{ required: true }]">
+                    <a-input name="productName" v-model:value="formData.productName" placeholder="请输入名称" />
+                  </a-form-item>
+                </a-col>
+              </a-row>
+            </a-col>
+          </a-row>
+          <a-form-item label="产品分类:" name="categoryId">
+            <a-select v-model:value="formData.categoryId"
+                      style="width: 100%"
+                      :options="selData"
+                      show-search
+                      :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+                      placeholder="Please select"
+                      allow-clear />
+          </a-form-item>
+          <a-form-item label="设备分类:" name="deviceType" :style="{ marginTop: '-8px' }">
+            <a-radio-group v-model:value="formData.deviceType" button-style="solid">
+              <a-radio-button :value=1>直连设备</a-radio-button>
+              <a-radio-button :value=2>网关子设备</a-radio-button>
+              <a-radio-button :value=3>网关设备</a-radio-button>
+            </a-radio-group>
+          </a-form-item>
+          <a-form-item label="备注:" name="remark" helpMessage="处理消息" :style="{ marginTop: '-8px' }">
+            <a-textarea placeholder="请输入备注" v-model:value="formData.remark" :rows="6" show-count :maxlength="100" />
+          </a-form-item>
+        </a-form>
+      </div>
+    </template>
+
+  </BasicModal>
 </template>
 <script lang="ts">
-  import { defineComponent, ref, computed, unref } from 'vue';
-  import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
-  import { BasicForm, useForm } from '/@/components/Form/index';
-  import { FormSchema } from '/@/components/Table';
-  import { useI18n } from '/@/hooks/web/useI18n';
-  import { CodeEditor, MODE } from '/@/components/CodeEditor';
-  const isFixedLength = (resolveMode: string) => resolveMode === '3';
-  const isDelimited = (resolveMode: string) => resolveMode === '1';
-  const isScript = (resolveMode: string) => resolveMode === '2';
-  export const formSchema: FormSchema[] = [
-    {
-      field: 'roleName',
-      label: '组件名称',
-      required: true,
-      component: 'Input',
-    },
-    {
-      field: 'ComponentType',
-      label: '组件类型',
-      required: true,
-      component: 'Select',
-      componentProps: {
-        options: [
-          { label: 'TCP服务', value: '0' },
-          { label: 'UDP服务', value: '1' },
-          { label: 'MQTT服务', value: '2' },
-          { label: 'DNS服务', value: '3' },
-          { label: 'GRPC服务', value: '4' },
-          { label: 'RTMP服务', value: '5' },
-          { label: 'WEBSOCKET服务', value: '6' },
-          { label: 'HTTPFLV服务', value: '7' },
-          { label: 'RTSP服务', value: '8' },
-        ],
-      },
-    },
-    {
-      field: 'status',
-      label: '集群',
-      component: 'RadioButtonGroup',
-      defaultValue: '0',
-      componentProps: {
-        options: [
-          { label: '共享配置', value: '0' },
-          { label: '独立配置', value: '1' },
-        ],
-      },
-    },
-    {
-      field: 'isSSL',
-      label: '开启SSL',
-      component: 'RadioGroup',
-      defaultValue: '0',
-      componentProps: {
-        options: [
-          { label: '是', value: '0' },
-          { label: '否', value: '1' },
-        ],
-      },
-      ifShow: ({ values }) => values.ComponentType != 2,
-    },
-    {
-      field: 'HOST',
-      label: 'HOST',
-      required: true,
-      component: 'Input',
-    },
-    {
-      field: 'PORT',
-      label: 'PORT',
-      required: true,
-      component: 'Input',
-    },
-    {
-      field: 'TLS',
-      label: 'TLS',
-      component: 'RadioGroup',
-      defaultValue: '0',
-      componentProps: {
-        options: [
-          { label: '是', value: '0' },
-          { label: '否', value: '1' },
-        ],
-      },
-      ifShow: ({ values }) => values.ComponentType == 2,
-    },
-
-    {
-      field: 'resolveMode',
-      label: '解析方式',
-      required: true,
-      helpMessage: '处理TCP粘拆包的方式',
-      component: 'Select',
-      componentProps: {
-        options: [
-          { label: '不处理', value: '0' },
-          { label: '分隔符', value: '1' },
-          { label: '自定义脚本', value: '2' },
-          { label: '固定长度', value: '3' },
-        ],
-      },
-      ifShow: ({ values }) => values.ComponentType == 0,
-    },
-    {
-      field: 'FixedLength',
-      label: '固定长度',
-      required: true,
-      component: 'Input',
-      ifShow: ({ values }) => isFixedLength(values.resolveMode) && values.ComponentType == 0,
-    },
-    {
-      field: 'Delimited',
-      label: '分隔符',
-      required: true,
-      component: 'Input',
-      ifShow: ({ values }) => isDelimited(values.resolveMode) && values.ComponentType == 0,
-    },
-    {
-      field: 'Script',
-      label: '解析脚本',
-      slot: 'Script',
-      required: true,
-      component: 'Input',
-      ifShow: ({ values }) => isScript(values.resolveMode) && values.ComponentType == 0,
-    },
-    {
-      field: 'MaxMessageLength',
-      label: '最大长度',
-      required: true,
-      helpMessage: '最大消息长度',
-      component: 'Input',
-      ifShow: ({ values }) => values.ComponentType == 2,
-    },
-    {
-      label: '描述',
-      field: 'remark',
-      component: 'InputTextArea',
-      componentProps: {
-        rows: 6,
-      },
-    },
-    {
-      label: ' ',
-      field: 'menu',
-      slot: 'menu',
-      component: 'Input',
-    },
-  ];
+  import { defineComponent, ref, computed, watch, unref } from 'vue';
+  import { BasicModal, useModalInner } from '/@/components/Modal';
+  import { Input, FormInstance, SelectProps, Row, Col, Image} from 'ant-design-vue';
+  import { usePrdCategoryStore } from '/@/store/modules/productcategory';
+  import { useProductStore } from '/@/store/modules/product'; 
   export default defineComponent({
-    name: 'EditInfo',
-    components: { BasicDrawer, BasicForm, CodeEditor },
-    props: {
-      visible: {
-        type: Boolean,
-        default: false,
-      },
+    name: 'DebugModal',
+    components: {
+      BasicModal,
+      'a-input': Input,
+      'a-row': Row,
+      'a-col': Col,
+      Image,
     },
     emits: ['success', 'register'],
     setup(_, { emit }) {
-      const { t } = useI18n();
-      const modeValue = ref<MODE>(MODE.JS);
+      const loading = ref(false);
       const isUpdate = ref(true);
-      const [registerForm] = useForm({
-        labelWidth: 90,
-        schemas: formSchema,
-        showActionButtonGroup: false,
+      const formRef = ref<FormInstance>();
+      const parentId = ref(null);
+      const selData = ref<SelectProps['options']>([]);
+      const formData = ref({
+        productCode: null,
+        productName: null,
+        categoryId: null,
+        deviceType: 1,
+        remark: null
       });
-      const [registerDrawer, { setDrawerProps, closeDrawer }] = useDrawerInner(async (data) => {
-        setDrawerProps({ confirmLoading: false });
-        // 需要在setFieldsValue之前先填充treeData，否则Tree组件可能会报key not exist警告
+      const productCategoryStore = usePrdCategoryStore();
+      const productStore = useProductStore();
+      const lines = ref(10);
+      const value1 = ref<string>('a');
 
-        isUpdate.value = !!data?.isUpdate;
-        if (unref(isUpdate)) {
-        }
-      });
+      const [registerModal, { setModalProps, closeModal, redoModalHeight }] = useModalInner(
+        async (data) => {
+          await formRef.value?.resetFields();
+          setModalProps({ confirmLoading: false });
+          await getLastChild();
+          parentId.value = data?.record?.id;
+          isUpdate.value = !!data?.isUpdate;
+          if (unref(isUpdate)) {
+            var tmpObj = {};
+            Object.assign(tmpObj, data.record);
+            formData.value = tmpObj;
 
-      const getTitle = computed(() =>
-        !unref(isUpdate)
-          ? t('routes.deviceconnect.addcomponent')
-          : t('routes.deviceconnect.editcomponent'),
+          }
+        },
       );
+      async function getLastChild() {
+        productCategoryStore.getlastchildApi()
+          .then((response) => {
+            const data: any[] = [];
+            response.forEach((r: any) => {
+              var obj = {
+                value: r.Id,
+                label: r.CategoryName,
+              };
+              data.push(obj);
+            });
+            selData.value = data;
+          });
+      }
+
+      function modify(model: any, callback: Function) {
+        model.Id = parentId.value;
+        productStore
+          .modifyApi({
+            model: model,
+          })
+          .then((data) => {
+            callback(data);
+          });
+      }
+
+      function add(model: any, callback: Function) {
+        productStore
+          .addApi({
+            model: model,
+          })
+          .then((data) => {
+            callback(data);
+          });
+      }
+      watch(
+        () => lines.value,
+        () => {
+          redoModalHeight();
+        },
+        { flush: 'post' }
+      );
+      const getTitle = computed(() => (!unref(isUpdate) ? '新增产品' : '编辑产品'));
+      const resetForm = () => {
+        closeModal();
+      };
       async function handleSubmit() {
-        try {
-          setDrawerProps({ confirmLoading: true });
-          closeDrawer();
-          emit('success');
+        try {  
+          formRef.value?.validate().then((p) => {
+
+            const callback = (result) => {
+              setModalProps({ confirmLoading: true });
+              closeModal();
+              emit('success', {
+                isUpdate: unref(isUpdate),
+                values: { ...p },
+              });
+            };
+            if (unref(isUpdate) == true) {
+              modify(p, callback);
+            } else {
+              add(p, callback);
+            }
+          });
         } finally {
-          setDrawerProps({ confirmLoading: false });
+          setModalProps({ confirmLoading: false });
         }
       }
-      return {
-        modeValue,
-        registerForm,
-        registerDrawer,
-        getTitle,
-        handleSubmit,
-      };
+      return { registerModal, resetForm, formRef, formData, value1, selData, loading, getTitle, handleSubmit };
     },
   });
 </script>
+<style lang="less" scoped>
+  ::v-deep .ant-form-item-label {
+    text-align: left;
+  }
+</style>

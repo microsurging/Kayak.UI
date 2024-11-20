@@ -1,6 +1,7 @@
 import { FormSchema } from '/@/components/Form/index';
 import { BasicColumn } from '/@/components/Table/src/types/table';
 import { h } from 'vue';
+import { Tag } from 'ant-design-vue';
 export const cardList = (() => {
   const result: any[] = [];
   const titles = [
@@ -44,6 +45,78 @@ export const cardList = (() => {
   }
   return result;
 })();
+
+export function httpRouteColumns(): BasicColumn[] {
+  return [{
+    title: '分组',
+    dataIndex: 'groupName',
+    width: 80,
+    customRender: ({ record }) => record.metadatas.groupName,
+  },
+  {
+    title: '路径',
+    dataIndex: 'path',
+    width: 150,
+    customRender: ({ record }) => record.metadatas.path,
+  },
+  {
+    title: '示例',
+    dataIndex: 'example',
+    width: 190,
+    customRender: ({ record }) => record.metadatas.example,
+  },
+  {
+    title: '说明',
+    dataIndex: 'description',
+    width: 150,
+    customRender: ({ record }) => record.metadatas.description,
+  }
+  ];
+}
+ 
+export function getThresholdColumns(): BasicColumn[] {
+  return [
+    {
+      title: '指标阈值',
+      dataIndex: 'ThresholdValue',
+      editable:true,
+      sorter: true,
+      width: 120,
+      customRender: ({ text }) => { 
+          return <a-input  value={text}></a-input>;
+         
+      },
+       
+    },
+    {
+      title: '阈值类型',
+      dataIndex: 'ThresholdType',
+      width: 150,
+      customRender: ({ text }) => {
+        return <a-select style="width:120px" value={text}>
+          <a-select-option value=">">&gt;</a-select-option>
+          <a-select-option value="<">&lt;</a-select-option>
+          <a-select-option value="=">=</a-select-option>
+        </a-select>;
+
+      },
+    },
+    {
+      title: '级别',
+      dataIndex: 'ThresholdLevel',
+      width: 150,
+         customRender: ({ text }) => {
+        return <a-select style="width:120px" value={text}>
+          <a-select-option value="忽略">忽略</a-select-option>
+          <a-select-option value="重要">重要</a-select-option>
+          <a-select-option value="告警">告警</a-select-option>
+        </a-select>;
+
+      },
+    }
+  ]
+}
+
 
 // 基础设置 form
 export const baseSetschemas: FormSchema[] = [
@@ -156,63 +229,103 @@ export function getServiceData() {
   return data;
 }
 
-export function getServiceColumns(): BasicColumn[] {
+export function getFunctionColumns(): BasicColumn[] {
   return [
     {
-      title: '服务标识',
-      dataIndex: 'ServiceId',
+      title: '功能标识',
+      dataIndex: 'FunctionId',
       sorter: true,
       width: 150,
     },
     {
-      title: '服务名称',
-      dataIndex: 'ServiceName',
+      title: '功能名称',
+      dataIndex: 'FunctionName',
       width: 180,
     },
     {
       title: '是否异步',
       dataIndex: 'IsAsync',
       width: 180,
+      customRender: ({ record }) => { 
+        let isAsync = record.IsAsync;
+        var text = "异步"
+        var color = '#f39c9c';
+        if (isAsync === false) {
+          text = "不异步"
+        
+        }
+        else {
+          var color = '#87d068';
+        }
+
+        return h(Tag, { color: color }, () => text)
+      },
     },
     {
       title: '说明',
-      dataIndex: 'Desc',
+      dataIndex: 'Remark',
       width: 200,
     },
   ];
 }
 
-export function getServiceNodeColumns(): BasicColumn[] {
+export function getAttributeColumns(): BasicColumn[] {
   return [
     {
       title: '属性标识',
-      dataIndex: 'AttributeId',
+      dataIndex: 'propertyId',
       sorter: true,
       width: 150,
     },
     {
       title: '属性名称',
-      dataIndex: 'AttributeName',
+      dataIndex: 'propertyName',
       width: 180,
     },
     {
       title: '数据类型',
-      dataIndex: 'DataType',
+      dataIndex: 'dataTypeName',
       width: 180,
-    },
+    customRender: ({ record }) => { 
+      return h('div', record.propDataType.name);;
+      },
+    }, 
     {
-      title: '属性值来源',
-      dataIndex: 'AttributeDataSource',
+      title: '读写类型',
+      dataIndex: 'readWriteType',
       width: 150,
-    },
-    {
-      title: '是否只读',
-      dataIndex: 'IsRead',
-      width: 150,
+      customRender: ({ record }) => {
+        const readWriteType = record.readWriteType;
+        var array: any = [];
+        readWriteType.forEach((item: string) => { 
+     
+          switch (item) {
+            case "read":
+              {
+                var color = '#87d068';
+                array.push(h(Tag, { color: color }, () => "读"));
+                break;
+              }
+            case "write":
+              { 
+                var color = '#f39c9c';
+                array.push(h(Tag, { color: color }, () => "写"));
+                break;
+              }
+            case "report":
+              { 
+                var color = '#1677ffbf';
+                array.push(h(Tag, { color: color }, () => "上报"));
+                break;
+              }
+          }
+        });
+        return  h('div', array);
+      },
     },
     {
       title: '说明',
-      dataIndex: 'Desc',
+      dataIndex: 'remark',
       width: 150,
     },
   ];
@@ -229,24 +342,50 @@ export function getEventData() {
 export function getEventColumns(): BasicColumn[] {
   return [
     {
-      title: '服务标识',
+      title: '事件标识',
       dataIndex: 'EventId',
       sorter: true,
       width: 150,
     },
     {
-      title: '服务名称',
+      title: '事件名称',
       dataIndex: 'EventName',
       width: 180,
     },
     {
-      title: '服务级别',
+      title: '事件级别',
       dataIndex: 'Eventlevel',
       width: 180,
+      customRender: ({ record }) => {
+        const eventlevel = record.Eventlevel;
+        var array: any = [];
+
+        switch (eventlevel) {
+          case "ordinary":
+            {
+              var color = '#87d068';
+              array.push(h(Tag, { color: color }, () => "普通"));
+              break;
+            }
+          case "alarm":
+            {
+              var color = '#1677ffbf';
+              array.push(h(Tag, { color: color }, () => "告警"));
+              break;
+            }
+          case "emergency":
+            {
+              var color = '#f39c9c';
+              array.push(h(Tag, { color: color }, () => "紧急"));
+              break;
+            }
+        }
+        return h('div', array);
+      },
     },
     {
       title: '说明',
-      dataIndex: 'Desc',
+      dataIndex: 'Remark',
       width: 200,
     },
   ];

@@ -1,4 +1,3 @@
-import { Data } from 'ant-design-vue/es/_util/type';
 
 export interface productByIdParams {
   ids: [];
@@ -28,7 +27,7 @@ export interface productModel {
   organizationId: number;
   protocol: number;
   deviceType: number;
-  createDate: Data;
+  createDate: Date;
   remark: string;
 }
 
@@ -40,7 +39,7 @@ export interface prdAggregationModel {
   organizationId: number;
   protocol: number;
   deviceType: number;
-  createDate: Data;
+  createDate: Date;
   remark: string;
   category: prdDictionary;
   prdProtocol: prdDictionary;

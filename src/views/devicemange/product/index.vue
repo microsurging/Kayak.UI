@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { defineComponent, onMounted, ref } from 'vue';
+  import { defineComponent, onMounted, ref, unref } from 'vue';
   import { PageWrapper } from '/@/components/Page';
   import Icon from '/@/components/Icon/index';
   import {
@@ -14,16 +14,15 @@
     Avatar,
     Button,
   } from 'ant-design-vue';
-  import type { FormInstance } from 'ant-design-vue';
+  import type { FormInstance, SelectProps } from 'ant-design-vue';
   import tag from 'ant-design-vue/lib/tag';
-  import CardInfo from './components/CardInfo.vue';
-  import { useDrawer } from '/@/components/Drawer';
-  import { useModal } from '/@/components/Modal';
-  import DebugModal from './components/debug.vue';
+  import CardInfo from './components/CardInfo.vue'; 
+  import { useModal } from '/@/components/Modal'; 
   import EditInfo from './components/edit.vue';
   import { useRouter } from 'vue-router';
   import { useProductStore } from '/@/store/modules/product';
   import { DownOutlined, UpOutlined } from '@ant-design/icons-vue';
+  import { usePrdCategoryStore } from '/@/store/modules/productcategory';
   export default defineComponent({
     components: {
       Card,
@@ -42,23 +41,30 @@
       Icon,
       Button,
       CardInfo,
-      EditInfo,
-      DebugModal,
+      EditInfo, 
     },
     setup() {
-      const productStore = useProductStore();
-      const [registerDrawer, { openDrawer }] = useDrawer();
+      const productStore = useProductStore(); 
+      const productCategoryStore = usePrdCategoryStore();
       const [registerModal, { openModal }] = useModal();
       const expand = ref(false);
       const router = useRouter();
+      const productCode = ref("");
+      const categoryId = ref<number | null>(null);
+      const deviceType = ref<number | null>(null);
+      const selData = ref<SelectProps['options']>([]);
       const cardList = ref([]);
       const page: any = ref(1);
       const pageSize: any = ref(10);
       const formRef = ref<FormInstance>();
       async function GetPage() {
+        cardList.value = [];
         productStore
           .getAggregationPageAsyncApi({
             query: {
+              productCode: unref(productCode),
+              deviceType: unref(deviceType),
+              categoryId: unref(categoryId),
               page: page.value,
               pageSize: pageSize.value,
             },
@@ -68,27 +74,51 @@
             cardList.value = response?.result.items;
             cardList.value.unshift([]);
           });
+      } 
+      async function getLastChild() {
+        productCategoryStore.getlastchildApi()
+          .then((response) => {
+            const data: any[] = [];
+            response.forEach((r: any) => {
+              var obj = {
+                value: r.Id,
+                label: r.CategoryName,
+              };
+              data.push(obj);
+            });
+            selData.value = data;
+          });
       }
-      const showDrawer = () => {
-        openDrawer(true, {
-          isUpdate: true,
-        });
-      };
-      function handleDebug() {
+
+      const showAddModal = () => {
         openModal(true, {
           isUpdate: false,
+        });
+      };
+      function handleEdit(record: Recordable) {
+        openModal(true, {
+          record,
+          isUpdate: true,
         });
       }
       const handleChange = (checked) => {
         console.log(checked);
       };
-
-      const handleProductDetail = () => {
-        router.push({ path: '/DeviceMange/product/productDetail', replace: true });
+      const handleClick = async () => {
+        await GetPage();
       };
-      const handleAdd = () => {
-        router.push('/DeviceMange/product/add');
-      };
+      const handleProductDetail = (record: Recordable) => {
+        router.push({
+          path: '/DeviceMange/product/productDetail',
+          replace: true,
+          query: {
+            id: record.id,
+            productCode: record.productCode,
+            productName: record.productName, 
+            deviceCount:record.deviceCount
+          },
+        });
+      }; 
       function handleDeleteById(record: Recordable) {
         var ids = [];
         ids.push(record.id);
@@ -106,33 +136,28 @@
         console.log(e);
       };
       function handleSuccess() {}
-      function handleModalSuccess() {}
+      async function handleModalSuccess() { 
+        await GetPage();
+      }
       onMounted(async () => {
         await GetPage();
+        await getLastChild();
       });
       return {
-        formRef,
-        handleAdd,
+        formRef, 
+        handleClick,
+        productCode,
+        categoryId,
+        deviceType,
         handleProductDetail,
         expand,
-        handleDebug,
-        handleChange,
-        registerDrawer,
-        handleModalSuccess,
-        openDrawer,
-        showDrawer,
+        handleEdit,
+        selData,
+        handleChange, 
+        handleModalSuccess, 
         registerModal,
         handleDeleteById,
-        checked1: ref(false),
-        checked2: ref(false),
-        checked3: ref(false),
-        checked4: ref(false),
-        checked5: ref(false),
-        checked6: ref(false),
-        checked7: ref(false),
-        checked8: ref(false),
-        checked9: ref(false),
-        checked10: ref(false),
+        showAddModal, 
         prefixCls: 'list-card',
         confirm,
         cancel,
@@ -149,27 +174,33 @@
         <a-form class="ant-advanced-search-form" ref="formRef">
           <a-row :gutter="24">
             <a-col v-show="expand || true" :span="8" style="text-align: left">
-              <a-form-item label="产品名称" :wrapper-col="{ sm: { span: 14 }, xs: { span: 24 } }">
-                <a-input placeholder="请输入产品名称" />
+              <a-form-item label="产品标识" :wrapper-col="{ sm: { span: 14 }, xs: { span: 24 } }">
+                <a-input v-model:value="productCode" placeholder="请输入产品标识" />
               </a-form-item>
             </a-col>
             <a-col v-show="expand || true" :span="8" style="text-align: left">
               <a-form-item label="所属品类" :wrapper-col="{ sm: { span: 14 }, xs: { span: 24 } }">
-                <a-input placeholder="请输入所属品类" />
+                <a-select 
+                          style="width: 100%"
+                          v-model:value="categoryId" 
+                          :options="selData"
+                          show-search
+                          :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+                          placeholder="请选择"
+                          allow-clear />
               </a-form-item>
             </a-col>
             <a-col v-show="expand" :span="8" style="text-align: left">
               <a-form-item label="产品类型" :wrapper-col="{ sm: { span: 14 }, xs: { span: 24 } }">
-                <a-input />
+                <a-select ref="select"     v-model:value="deviceType"    style="width: 100%"  allow-clear >
+                  <a-select-option value=1>直连设备</a-select-option>
+                  <a-select-option value=2>网关子设备</a-select-option> 
+                  <a-select-option value=3>网关设备</a-select-option>
+                </a-select>
               </a-form-item>
-            </a-col>
-            <a-col v-show="expand" :span="8" style="text-align: left">
-              <a-form-item label="消息协议" :wrapper-col="{ sm: { span: 14 }, xs: { span: 24 } }">
-                <a-input />
-              </a-form-item>
-            </a-col>
+            </a-col> 
             <a-col v-show="expand || true" :span="8">
-              <a-button type="primary" html-type="submit">查询</a-button>
+              <a-button type="primary" @click="handleClick">查询</a-button>
               <a-button style="margin: 0 8px" @click="() => formRef.resetFields()">重置</a-button>
               <a style="font-size: 12px" @click="expand = !expand">
                 <template v-if="expand">
@@ -203,7 +234,7 @@
           <template #renderItem="{ item }">
             <template v-if="!item || item.id === undefined">
               <a-list-item>
-                <a-button class="new-btn" type="default" @click="handleAdd">
+                <a-button class="new-btn" type="default" @click="showAddModal">
                   <Icon icon="ion:plus" :size="30" />
                   新增产品
                 </a-button>
@@ -230,14 +261,11 @@
 
                   <template #actions>
                     <a-tooltip title="查看">
-                      <Icon icon="ant-design:eye-twotone" :size="18" @click="handleProductDetail" />
+                      <Icon icon="ant-design:eye-twotone" :size="18" @click="handleProductDetail(item)" />
                     </a-tooltip>
                     <a-tooltip title="编辑">
-                      <Icon icon="ant-design:edit-outlined" :size="18" @click="showDrawer" />
-                    </a-tooltip>
-                    <a-tooltip title="下载">
-                      <Icon icon="ant-design:download-outlined" :size="18" @click="handleDebug" />
-                    </a-tooltip>
+                      <Icon icon="ant-design:edit-outlined" :size="18" @click="handleEdit(item)" />
+                    </a-tooltip> 
                     <a-popconfirm
                       title="确定删除此组件吗？"
                       @confirm="handleDeleteById(item)"
@@ -251,7 +279,7 @@
                   <div class="">
                     <card-info
                       :deviceType="item.prdDeviceType"
-                      new-user="999"
+                      :deviceCount="item.deviceCount"
                       :productId="item.id"
                       :state="item.status == 1"
                     />
@@ -263,8 +291,7 @@
         </a-list>
       </div>
     </PageWrapper>
-    <EditInfo @register="registerDrawer" @success="handleSuccess" />
-    <DebugModal @register="registerModal" @success="handleModalSuccess" :minHeight="428" />
+    <EditInfo @register="registerModal" @success="handleModalSuccess" :minHeight="428" /> 
   </div>
 </template>
 <style lang="less" scoped>

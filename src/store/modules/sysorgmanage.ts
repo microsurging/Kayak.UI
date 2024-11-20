@@ -14,6 +14,7 @@ import {
   addApi,
   validateApi,
   deletebyIdApi,
+  getorgcompanyApi,
 } from '/@/api/sys/orgmanage';
 export const useSysOrgManageStore = defineStore({
   id: 'app-sysorgmanage',
@@ -34,6 +35,15 @@ export const useSysOrgManageStore = defineStore({
         const { ...sysOrganizationQuery } = params;
         const data = await getsysorganizationbyconditionApi(sysOrganizationQuery);
         return data;
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    async getorgcompanyApi( 
+    ): Promise<sysOrgListModel | null> {
+      try { 
+        const data = await getorgcompanyApi();
+        return data?.result;
       } catch (error) {
         return Promise.reject(error);
       }

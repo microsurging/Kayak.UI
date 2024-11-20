@@ -225,7 +225,6 @@
         canResize: canResize,
         striped: striped,
         showIndexColumn: false,
-        titleHelpMessage: '树形组件不能和序列号列同时存在',
         columns: getBasicColumns(),
         dataSource: JsonData,
         onChange: (pagination) => {
@@ -254,8 +253,18 @@
       function handle() {
         setPagination(paginationProp.value);
       }
-      function handleSee() {
-        router.push('/device/deviceDetai');
+      const handleSee=(record: Recordable) => {
+        router.push({
+          path: '/device/deviceDetai',
+          replace: true,
+          query: {
+            id: record.Id,
+            code: record.Code,
+            name: record.Name,
+            typeCode: record.ProductCode	
+          },
+
+        });
       }
       function handleEdit(record: Recordable) {
         openModal(true, {
@@ -392,7 +401,7 @@
       }
     }
   }
-
+    
   ::v-deep .vben-page-wrapper-content {
     margin: 16px 10px;
   }

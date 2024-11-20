@@ -15,6 +15,7 @@ import {
   addApi,
   validateApi,
   deletebyIdApi,
+  getlastchildApi,
 } from '/@/api/devicemange/productcategory';
 export const usePrdCategoryStore = defineStore({
   id: 'app-prdcategory',
@@ -35,6 +36,15 @@ export const usePrdCategoryStore = defineStore({
         const { ...productCategoryPageParams } = params;
         const data = await getproductcategorybyconditionApi(productCategoryPageParams);
         return data;
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    async getlastchildApi( 
+    ): Promise<sysPrdCategoryList | null> {
+      try { 
+        const data = await getlastchildApi();
+        return data?.Result;
       } catch (error) {
         return Promise.reject(error);
       }

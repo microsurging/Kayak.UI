@@ -8,6 +8,7 @@ import {
   editParams,
   sysDicByIdParams,
   sysDicPageParams,
+  aggregationSysDicByIdParams
 } from './model/dictionarymanageModel';
 
 import { ErrorMessageMode } from '/#/axios';
@@ -22,6 +23,10 @@ enum Api {
   modify = '/sysdictionary/modify',
   add = '/sysdictionary/add',
   getsysdicbyparentcode = '/sysdictionary/getsysdictionarybyparentcode',
+  getaggsysdicbyparcode = '/sysdicaggregation/getsysdictionarybyparentcode',
+  aggregationAdd = '/sysdicaggregation/add',
+  aggregationModify = '/sysdicaggregation/modify',
+  aggregationDeletebyId = '/sysdicaggregation/deletebyId',
 }
 export function getsysdictionarybyconditionApi(
   params: sysDictionaryQuery,
@@ -45,6 +50,21 @@ export function getsysdicbyparentcodeApi(
   return defHttp.post<sysDicListModel>(
     {
       url: Api.getsysdicbyparentcode,
+      params,
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
+export function getaggsysdicbyparcodeApi(
+  params: sysDicByParentCodeParams,
+  mode: ErrorMessageMode = 'modal',
+) {
+  return defHttp.post<sysDicListModel>(
+    {
+      url: Api.getaggsysdicbyparcode,
       params,
     },
     {
@@ -101,6 +121,18 @@ export function deletebyIdApi(params: sysDicByIdParams, mode: ErrorMessageMode =
   );
 }
 
+export function aggregationDeletebyIdApi(params: aggregationSysDicByIdParams, mode: ErrorMessageMode = 'modal') {
+  return defHttp.post<editSysDicModel>(
+    {
+      url: Api.aggregationDeletebyId,
+      params,
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
 export function modifyApi(params: editParams, mode: ErrorMessageMode = 'modal') {
   return defHttp.post<editSysDicModel>(
     {
@@ -117,6 +149,30 @@ export function addApi(params: editParams, mode: ErrorMessageMode = 'modal') {
   return defHttp.post<editSysDicModel>(
     {
       url: Api.add,
+      params,
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
+export function aggregationModifyApi(params: editParams, mode: ErrorMessageMode = 'modal') {
+  return defHttp.post<editSysDicModel>(
+    {
+      url: Api.aggregationModify,
+      params,
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
+export function aggregationAddApi(params: editParams, mode: ErrorMessageMode = 'modal') {
+  return defHttp.post<editSysDicModel>(
+    {
+      url: Api.aggregationAdd,
       params,
     },
     {

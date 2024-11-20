@@ -31,7 +31,7 @@
 <script lang="ts">
   import { defineComponent, ref, onMounted } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getBasicColumns, getFormConfig, getBasicData } from './data';
+  import { getBasicColumns, getFormConfig } from './data';
   import { PageWrapper } from '/@/components/Page';
   import { useRegistryCenterStore } from '/@/store/modules/registrycenter';
   import { useModal } from '/@/components/Modal';
@@ -109,12 +109,7 @@
           isUpdate: false,
         });
       };
-      function handleAddGateway(record: Recordable) {
-        openModal(true, {
-          isUpdate: false,
-          parentId: record.CategoryId,
-        });
-      }
+ 
       function handleEdit(record: Recordable) {
         openModal(true, {
           record,
@@ -134,8 +129,7 @@
         confirm,
         registerModal,
         cancel,
-        showAddModal,
-        handleAddGateway,
+        showAddModal, 
         handleModalSuccess,
         registerTable,
         handleEdit,

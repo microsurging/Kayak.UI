@@ -17,6 +17,7 @@
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { Form, Input } from 'ant-design-vue';
+  import { useDeviceGatewayStore } from '/@/store/modules/devicegateway';
   import { deviceGatewayFormSchema } from '/@/views/deviceconnect/devicegateway/data';
   import type { FormInstance } from 'ant-design-vue';
   export default defineComponent({
@@ -27,9 +28,9 @@
       const loading = ref(false);
       const formRef = ref<FormInstance>();
       const isUpdate = ref(true);
-      const lines = ref(10);
-      const rowId = ref('');
-      const parentId = ref('');
+      const lines = ref(10); 
+      const deviceGateway= useDeviceGatewayStore();
+      let id: number = 0;
       const layout = {
         labelCol: { span: 4 },
         wrapperCol: { span: 19 },
@@ -47,9 +48,8 @@
           resetFields();
           setModalProps({ confirmLoading: false });
           isUpdate.value = !!data?.isUpdate;
-          parentId.value = data?.parentId ?? '';
-          if (unref(isUpdate)) {
-            rowId.value = data.record.CategoryId;
+          id = data?.record?.id ?? 0;
+          if (unref(isUpdate)) { 
             setFieldsValue({
               ...data.record,
             });
@@ -57,6 +57,26 @@
         },
       );
 
+      function modify(model: any, callback: Function) {
+        model.Id = id;
+        deviceGateway
+          .modifyApi({
+            model: model,
+          })
+          .then((data) => {
+            callback(data);
+          });
+      }
+
+      function add(model: any, callback: Function) {
+        deviceGateway
+          .addApi({
+            model: model,
+          })
+          .then((data) => {
+            callback(data);
+          });
+      }
       watch(
         () => lines.value,
         () => {
@@ -66,14 +86,21 @@
       const getTitle = computed(() => (!unref(isUpdate) ? '新增网关' : '编辑网关'));
       async function handleSubmit() {
         try {
-          console.log('parentId', parentId);
-          const values = await validate();
-          setModalProps({ confirmLoading: true });
-          closeModal();
-          emit('success', {
-            isUpdate: unref(isUpdate),
-            values: { ...values, CategoryId: rowId.value },
-          });
+          await validate().then((p) => {
+            const callback = (result) => {
+              setModalProps({ confirmLoading: true });
+              closeModal();
+              emit('success', {
+                isUpdate: unref(isUpdate),
+                values: { ...p },
+              });
+            };
+            if (unref(isUpdate) == true) {
+              modify(p, callback);
+            } else {
+              add(p, callback);
+            }
+          }); 
         } catch (error) {
         } finally {
           setModalProps({ confirmLoading: false });

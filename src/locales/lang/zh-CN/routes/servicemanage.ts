@@ -1,0 +1,17 @@
+export default {
+  registrycenter: '注册中心',
+  servicemanage: '服务管理',
+  serviceroute: '服务路由',
+  servicecommand: '服务规则',
+  serviceroutedetail: '服务路由详情',
+  servicedetail:"服务详情",
+  modulemanage: '模块管理',
+  intermediate:"中间服务",
+  servicenode: '服务节点',
+  metadata: '元数据',
+  addmodule: '添加模块',
+  editmodule: '编辑模块',
+  blackWhiteList: '黑白名单',
+  disable: '禁用',
+  enable:'启用',
+};

@@ -18,6 +18,7 @@ enum Api {
   modify = '/productcategory/modify',
   add = '/productcategory/add',
   addchildren = '/productcategory/addchildren',
+  getlastchild ='/productcategory/getlastchild'
 }
 export function getproductcategorybyconditionApi(
   params: productCategoryPageParams,
@@ -42,6 +43,19 @@ export function getpageasyncApi(
     {
       url: Api.getpageasync,
       params,
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
+export function getlastchildApi( 
+  mode: ErrorMessageMode = 'modal',
+) {
+  return defHttp.post<sysPrdCategoryList>(
+    {
+      url: Api.getlastchild, 
     },
     {
       errorMessageMode: mode,

@@ -21,21 +21,15 @@
               onClick: handleEdit.bind(null, record),
             },
             {
-              icon: 'ant-design:reload-outlined',
-              label: t('routes.deviceconnect.republish'),
+              icon: record.Status == 1 ?'ant-design:stop-outlined': 'ant-design:reload-outlined',
+              label:   record.Status == 1 ? t('routes.deviceconnect.cancelpublish') : t('routes.deviceconnect.republish') ,
               popConfirm: {
-                title: t('routes.deviceconnect.w-republish'),
-                confirm: handleRePublish.bind(null, record),
+                title:  record.Status == 1 ?t('routes.deviceconnect.c-publish'): t('routes.deviceconnect.w-republish'),
+                confirm:  record.Status == 1
+             ? handleCancelPublish.bind(null, record)
+             : handleRePublish.bind(null, record),
               },
-            },
-            {
-              label: t('routes.deviceconnect.cancelpublish'),
-              popConfirm: {
-                title: t('routes.deviceconnect.c-publish'),
-                confirm: handleCancelPublish.bind(null, record),
-              },
-              icon: 'ant-design:stop-outlined',
-            },
+            }, 
             {
               label: t('routes.deviceconnect.delete'),
               popConfirm: {
@@ -55,7 +49,7 @@
   </PageWrapper>
 </template>
 <script lang="ts">
-  import { defineComponent, ref } from 'vue';
+  import { defineComponent, ref, onMounted } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { useProtocolManageStore } from '/@/store/modules/protocolmanage';
   import { FormProps } from '/@/components/Table';
@@ -118,8 +112,7 @@
             handle();
           });
       }
-
-      GetPage();
+       
       const striped = ref(false);
       const canResize = ref(true);
       const [registerTable, methods] = useTable({
@@ -151,17 +144,20 @@
       }
       const showDrawer = () => {
         openDrawer(true, {
-          isUpdate: true,
+          isUpdate: false,
         });
       };
       function handleEdit(record: Recordable) {
-        console.log('点击了编辑', record);
+        openDrawer(true, {
+          record,
+          isUpdate: true,
+        });
       }
       function handleCancelPublish(record: Recordable) {
         var ids = [];
         ids.push(record.Id);
         protocolManageStore
-          .cancelpublishApi({
+          .cancelpublishaggApi({
             ids: ids,
           })
           .then((response) => {
@@ -172,7 +168,7 @@
         var ids = [];
         ids.push(record.Id);
         protocolManageStore
-          .republishApi({
+          .republishaggApi({
             ids: ids,
           })
           .then((response) => {
@@ -190,10 +186,12 @@
             GetPage();
           });
       }
-      function handleSuccess() {
-        console.log('点击了删除1');
+      async function handleSuccess() {
+      await  GetPage();
       }
-
+      onMounted(async () => {
+        await GetPage(); 
+      });
       return {
         t,
         inputText,

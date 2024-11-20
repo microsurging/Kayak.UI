@@ -3,7 +3,7 @@
     <div>
       <p>设备数量</p>
       <p
-        ><a>{{ newUser }}</a></p
+        ><a>{{ deviceCount }}</a></p
       >
     </div>
     <div>
@@ -45,7 +45,7 @@
         type: [String, Number],
         default: 0,
       },
-      newUser: {
+      deviceCount: {
         type: [String, Number],
         default: 0,
       },

@@ -1,8 +1,7 @@
 <template>
   <BasicModal
     @register="registerModal"
-    width="520"
-    height="453"
+    width="520" 
     title="查看物模型"
     :canFullscreen="false"
     v-bind="$attrs"

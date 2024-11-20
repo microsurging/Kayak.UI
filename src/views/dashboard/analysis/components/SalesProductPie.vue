@@ -16,7 +16,7 @@
     },
     height: {
       type: String as PropType<string>,
-      default: '300px',
+      default: '500px',
     },
   });
 

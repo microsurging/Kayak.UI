@@ -5,26 +5,27 @@
         <template #title>
           <span>{{ t('common.redo') }}</span>
         </template>
-        <RedoOutlined @click="redo" />
       </Tooltip>
     </template>
-    <CountTo
-      :startVal="1"
-      :endVal="699890"
-      style="font-size: 30px; color: rgba(0, 0, 0, 0.85); padding-left: 24px"
-    />
-    <div ref="chartRef" :style="{ width, height }"> </div>
+    <div class="md:flex enter-y">
+      <div class="md:w-3/4 w-full">
+        <CountTo :startVal="1"
+                 :endVal="jsonData.todayTotal"
+                 style="font-size: 50px; color: rgba(0, 0, 0, 0.85); padding-left: 24px" />
+      </div>
+
+
+      <div class="md:w-1/4 !md:ml-1 w-full">
+        <img src="\src\assets\images\devicemessage.jpg" />
+      </div>
+    </div>
     <template #actions>
-      <span
-        style="
-          text-align: left;
-          width: 100%;
-          display: block;
-          padding-left: 24px;
-          color: rgba(0, 0, 0, 0.65);
-        "
-        >当月设备消息量 <CountTo :startVal="1" :endVal="699890" style="padding-left: 5px"
-      /></span>
+      <div class="md:flex enter-y">
+        <div class="md:w-1/2 w-full">当月设备消息量 </div> <div class="md:w-1/4 w-full" /> <div class="md:w-1/4 w-full" />
+        <div class="md:w-1/4 w-full">
+          <CountTo :startVal="1" :endVal="jsonData.monthTotal" style="padding-left: 5px" />
+        </div>
+      </div>
     </template>
   </Card>
 </template>
@@ -33,9 +34,12 @@
   import { CountTo } from '/@/components/CountTo/index';
   import { Card, Tooltip, Tag } from 'ant-design-vue';
   import { RedoOutlined } from '@ant-design/icons-vue';
+
+  import { useDeviceMsgTotalStore } from '/@/store/modules/devicemessage';
   import { useI18n } from '/@/hooks/web/useI18n';
   const { t } = useI18n();
-  const redo = () => {};
+  const redo = () => { };
+  const jsonData = ref({});
   import { useECharts } from '/@/hooks/web/useECharts';
   const props = defineProps({
     loading: Boolean,
@@ -48,6 +52,14 @@
       default: '100px',
     },
   });
+  function getData() {
+    var deviceMsgTotalStore = useDeviceMsgTotalStore();
+    deviceMsgTotalStore.getdevicemsgtotalApi().then(response => {
+      var data = response.result
+      jsonData.value = data;
+    });
+  }
+  getData();
   const chartRef = ref<HTMLDivElement | null>(null);
 
   const { setOptions } = useECharts(chartRef as Ref<HTMLDivElement>);
@@ -128,6 +140,10 @@
 
   ::v-deep .ant-card-head {
     border-width: 0px;
+  }
+
+  ::v-deep .ant-card-actions {
+    border-top: 1px solid #e6e5e5;
   }
 
   ::v-deep .ant-card-head-title {

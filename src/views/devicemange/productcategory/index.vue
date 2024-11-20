@@ -113,9 +113,7 @@
           items.forEach((item: any) => {
             if (item.IsChildren == true) item.children = [];
             record.children.push(item);
-          });
-          console.log('ex', expanded);
-          console.log('re', record);
+          }); 
         },
         titleHelpMessage: '树形组件不能和序列号列同时存在',
         dataSource: JsonData,

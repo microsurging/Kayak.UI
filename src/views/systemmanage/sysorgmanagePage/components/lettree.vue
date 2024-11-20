@@ -48,17 +48,16 @@
       const autoExpandParent = ref<boolean>(true);
       const gData = ref<TreeDataItem[]>(genData);
       const sysOrgManageStore = useSysOrgManageStore();
-      emitter.on('editChange', (value: string | null) => {
+      emitter.on('sysorgeditChange', (value: string | null) => {
         genData.value[0].children = [];
         getList(null);
       });
       onBeforeUnmount(() => {
-        emitter.off('editChange', (v: string | null) => {}); //关闭
+        emitter.off('sysorgeditChange', (v: string | null) => {}); //关闭
       });
       function getList(_preKey: string | null, _tns?: TreeDataItem[]) {
         const preKey = _preKey;
         const tns = _tns || genData;
-        console.log('test', 1);
         let level = 1;
         if (preKey) level = preKey.split('-').length + 1;
         sysOrgManageStore
@@ -81,7 +80,7 @@
           });
       }
       const onTreeNodeSelect = (treeNode: any) => {
-        emitter.emit('selectChanged', treeNode[0] || null);
+        emitter.emit('sysorgselectChanged', treeNode[0] || null);
       };
 
       const onLoadData = (treeNode: any) => {

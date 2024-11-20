@@ -1,31 +1,48 @@
 import { h } from 'vue';
 import { FormProps, FormSchema } from '/@/components/Table';
 import { BasicColumn } from '/@/components/Table/src/types/table';
+import { Tag } from 'ant-design-vue';
+import { useSysDicManageStore } from '/@/store/modules/sysdicmanage';
+import { useProtocolManageStore } from '/@/store/modules/protocolmanage';
+import { useNetworkPartStore } from '/@/store/modules/networkPart';
+const sysDicManageStore = useSysDicManageStore();
+const protocolManageStore = useProtocolManageStore();
+const networkPartStore = useNetworkPartStore();
 export function getBasicColumns(): BasicColumn[] {
   return [
     {
       title: '名称',
-      dataIndex: 'DeviceGatewayName',
+      dataIndex: 'name',
       sorter: true,
       width: 150,
     },
     {
       title: '类型',
-      dataIndex: 'DeviceGatewayType',
+      dataIndex: 'gatewayTypeValue',
       width: 200,
+      customRender: ({ record }) => {
+        return h('div', record.gatewayType.name);;
+      },
     },
     {
       title: '网络组件',
       width: 150,
-      dataIndex: 'NetworkComponent',
+      dataIndex: 'netWorkId',
+      customRender: ({ record }) => {
+        return h('div', record.networkPart.name);;
+      },
     },
     {
       title: '状态',
-      dataIndex: 'Status',
+      dataIndex: 'status',
       width: 150,
 
-      customRender: ({ text }) => {
-        return h(<a-tag color="#87d068">{text}</a-tag>);
+      customRender: ({ record }) => {
+        const status = record.status;
+        const enable = ~~status == 1;
+        const color = enable ? '#87d068' : '#f39c9c';
+        const text = enable ? '运行中' : '已停止';
+        return h(Tag, { color: color }, () => text);
       },
     },
   ];
@@ -217,7 +234,7 @@ export const getAdvanceSchema = (): FormSchema[] => {
     component: 'Input',
     colProps: {
       xl: 6,
-      xxl: 2,
+      xxl: 6,
     },
   });
 
@@ -281,7 +298,7 @@ export function getTreeTableData() {
 
 export const deviceGatewayFormSchema: FormSchema[] = [
   {
-    field: 'DeviceGatewayName',
+    field: 'name',
     label: '名称',
     component: 'Input',
     rules: [
@@ -293,9 +310,21 @@ export const deviceGatewayFormSchema: FormSchema[] = [
     helpMessage: ['本字段演示异步验证', '不能输入带有admin的用户名'],
   },
   {
-    field: 'DeviceGatewayType',
+    field: 'gatewayTypeValue',
     label: '类型',
-    component: 'ApiSelect',
+    component: 'ApiSelect',  
+    componentProps: {
+      api: sysDicManageStore.getsysdictionarybyconditionApi,
+      params: {
+        query: {
+          parentCode: 'devicegatewaytype',
+        },
+      },
+      fieldNames: {
+        label: 'Name',
+        value: 'Code',
+      },
+    }, 
     rules: [
       {
         required: true,
@@ -305,24 +334,49 @@ export const deviceGatewayFormSchema: FormSchema[] = [
   },
   {
     label: '网络组件',
-    field: 'NetworkComponent',
-    component: 'ApiSelect',
-    rules: [
-      {
-        required: true,
-        message: '请输入分类名称',
+    field: 'netWorkId', 
+    component: 'ApiSelect', 
+    componentProps: {
+      api: networkPartStore.getnetworkpartbyconditionApi,
+  
+      params: {
+        query: {
+          status: 1,
+        },
       },
-    ],
+      fieldNames: {
+        label: 'Name',
+        value: 'Id',
+      },
+    },
   },
   {
     label: '消息协议',
-    field: 'MessageProtocol',
+    field: 'protocolCode',
     component: 'ApiSelect',
+    componentProps: {
+      api: protocolManageStore.getprotocolsApi, 
+      fieldNames: {
+        label: 'protocolName',
+        value: 'protocolCode',
+      },
+    }, 
+
+    rules: [
+      {
+        required: true,
+
+        message: '请选择消息协议',
+      },
+    ],
   },
 
   {
     label: '描述',
-    field: 'Describe',
+    field: 'remark',
     component: 'InputTextArea',
+    componentProps: {
+      rows: 6,
+    },
   },
 ];

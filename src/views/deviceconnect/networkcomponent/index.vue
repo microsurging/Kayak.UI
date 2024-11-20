@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { defineComponent, ref } from 'vue';
+  import { defineComponent, onMounted, ref, unref } from 'vue';
   import { PageWrapper } from '/@/components/Page';
   import Icon from '/@/components/Icon/index';
-  import { cardList } from './data';
   import {
     Card,
     Form,
@@ -20,6 +19,9 @@
   import { useDrawer } from '/@/components/Drawer';
   import { useModal } from '/@/components/Modal';
   import DebugModal from './components/debug.vue';
+  import {  isNull } from '/@/utils/is';
+  import { useSysDicManageStore } from '/@/store/modules/sysdicmanage';
+  import { useNetworkPartStore } from '/@/store/modules/networkPart';
   import EditInfo from './components/edit.vue';
   export default defineComponent({
     name: 'Networkcomponent',
@@ -43,39 +45,108 @@
     },
 
     setup() {
+      const sysDicManageStore = useSysDicManageStore();
+      const networkPartStore = useNetworkPartStore();
       const [registerDrawer, { openDrawer }] = useDrawer();
       const [registerModal, { openModal }] = useModal();
+      const componenttypeList = ref([]);
+      const selComponentType = ref(null);
+      const selComponentName = ref(null); 
+      const cardList = ref([]);
+      const page: any = ref(1);
+      const pageSize: any = ref(10);
       const showDrawer = () => {
         openDrawer(true, {
-          isUpdate: true,
-        });
-      };
-      function handleDebug() {
-        openModal(true, {
           isUpdate: false,
         });
-      }
-      const handleChange = (checked) => {
-        console.log(checked);
       };
-      const confirm = (e) => {
-        console.log(e);
+      function handleEdit(record: Recordable) {
+        openDrawer(true, {
+          record,
+          isUpdate: true,
+        });
+      }
+      function getSysDicByCode() {
+        sysDicManageStore
+          .getaggsysdicbyparcodeApi({
+            parentCode: 'componenttype',
+          })
+          .then((response) => {
+            componenttypeList.value = response;
+          });
+      }
+      async function GetPage() {
+         cardList.value =[];
+        networkPartStore
+          .getaggregationpageasyncApi({
+            query: {
+              componentTypeCode: unref(selComponentType),
+              name: unref(selComponentName),
+              page: page.value,
+              pageSize: pageSize.value,
+            },
+          })
+          .then((response) => {
+            cardList.value = response?.result.items;
+            cardList.value.unshift([]);
+          });
+      }
+      function handleDebug(record: Recordable) {
+        openModal(true, {
+          record,
+          isUpdate: true,
+        });
+      }
+      function handleDeleteById(record: Recordable) {
+        var ids = [];
+        ids.push(record.id);
+
+        networkPartStore
+          .deletebyIdApi({
+            ids: ids,
+          })
+          .then((response) => {
+            GetPage();
+          });
+      }
+      const handleChange = async (record: Recordable) => {
+        if (record == null) {
+          selComponentType.value = null;
+        }
+        else {
+          selComponentType.value = record.code;
+        }
+        await GetPage();
+      };
+      const confirm = (e) => { 
         return new Promise((resolve) => {
           setTimeout(() => resolve(true), 3000);
         });
       };
-
-      const cancel = (e) => {
-        console.log(e);
+      onMounted(async () => {
+        await getSysDicByCode();
+        await GetPage();
+      });
+      const cancel = (e) => { 
       };
-      function handleSuccess() {}
+      async function handleSuccess() {
+        await GetPage();
+   
+      }
       function handleModalSuccess() {}
       return {
         handleDebug,
         handleChange,
+        GetPage,
+        selComponentType,
+        selComponentName,
         registerDrawer,
+        handleEdit,
+        handleDeleteById,
+        componenttypeList,
         handleModalSuccess,
         openDrawer,
+        isNull, 
         showDrawer,
         registerModal,
         checked1: ref(false),
@@ -91,7 +162,7 @@
         prefixCls: 'list-card',
         confirm,
         cancel,
-        list: cardList,
+         cardList,
         handleSuccess,
       };
     },
@@ -113,43 +184,27 @@
           >
             <a-form-item>
               <span :style="{ marginRight: '30px' }">组件类型:</span>
-              <a-checkable-tag v-model:checked="checked1" @change="handleChange" value="Category1"
-                >全部</a-checkable-tag
-              >
-              <a-checkable-tag v-model:checked="checked2" @change="handleChange" value="Category2"
-                >UDP</a-checkable-tag
-              >
-              <a-checkable-tag v-model:checked="checked3" @change="handleChange" value="Category3"
-                >HTTP服务</a-checkable-tag
-              >
-              <a-checkable-tag v-model:checked="checked4" @change="handleChange" value="Category4"
-                >MQTT服务</a-checkable-tag
-              >
-              <a-checkable-tag v-model:checked="checked5" @change="handleChange" value="Category5"
-                >WEBSOCKET服务</a-checkable-tag
-              >
-              <a-checkable-tag v-model:checked="checked6" @change="handleChange" value="Category6"
-                >TCP服务</a-checkable-tag
-              >
-              <a-checkable-tag v-model:checked="checked7" @change="handleChange" value="Category7"
-                >RTMP服务</a-checkable-tag
-              >
-              <a-checkable-tag v-model:checked="checked8" @change="handleChange" value="Category8"
-                >RTSP服务</a-checkable-tag
-              >
-              <a-checkable-tag v-model:checked="checked9" @change="handleChange" value="Category9"
-                >HTTPFLV服务</a-checkable-tag
-              >
-              <a-checkable-tag v-model:checked="checked10" @change="handleChange" value="Category10"
-                >DNS服务</a-checkable-tag
-              >
+              <template v-if="isNull(selComponentType)">
+                <a-checkable-tag checked="true" @change="handleChange(null)" value="Category1">全部</a-checkable-tag>
+              </template>
+              <template v-else>
+                <a-checkable-tag @change="handleChange(null)" value="Category1">全部</a-checkable-tag>
+              </template>
+              <template v-for="componenttypeItem in componenttypeList">
+                <template v-if="componenttypeItem.code===selComponentType">
+                  <a-checkable-tag checked="true" @change="handleChange(componenttypeItem)" :value="componenttypeItem.code">{{componenttypeItem.name}}</a-checkable-tag>
+                </template>
+                <template v-else>
+                  <a-checkable-tag @change="handleChange(componenttypeItem)" :value="componenttypeItem.value">{{componenttypeItem.name}}</a-checkable-tag>
+                </template>
+              </template>
             </a-form-item>
           </a-row>
           <span :style="{ marginRight: '30px', marginTop: '5px' }">其它选项:</span>
           <a-row block>
             <a-col :lg="8" :md="10" :sm="10" :xs="24">
-              <a-form-item :wrapper-col="{ sm: { span: 16 }, xs: { span: 24 } }" label="配置名称">
-                <a-input placeholder="配置名称" style="width: 200px" />
+              <a-form-item :wrapper-col="{ sm: { span: 16 }, xs: { span: 24 } }" label="组件名称">
+                <a-input placeholder="组件名称" @change="GetPage" v-model:value="selComponentName" style="width: 200px" />
               </a-form-item>
             </a-col>
           </a-row>
@@ -159,14 +214,14 @@
       <div :class="`${prefixCls}__content`">
         <a-list
           rowKey="id"
-          :grid="{ gutter: 16, xs: 1, sm: 2, md: 4, lg: 4, xl: 4, xxl: 3, xxxl: 2 }"
-          :dataSource="list"
+          :grid="{ gutter: 10, xs: 1, sm: 2, md: 4, lg: 4, xl: 4, xxl: 3, xxxl: 2 }"
+          :dataSource="cardList"
           class="card-list"
         >
           <template #renderItem="{ item }">
             <template v-if="!item || item.id === undefined">
               <a-list-item>
-                <a-button class="new-btn" type="dashed">
+                <a-button class="new-btn" type="dashed" @click="showDrawer">
                   <Icon icon="ion:plus" :size="30" />
                   新增组件
                 </a-button>
@@ -176,25 +231,28 @@
               <a-list-item>
                 <a-card :hoverable="true" :class="`${prefixCls}__card`">
                   <div :class="`${prefixCls}__card-title`">
-                    <Icon class="icon" :color="item.color" />
-                    {{ item.title }}
+                    <Icon class="icon"     color="#1890ff" />
+                    {{ item.name }}
                   </div>
 
                   <template #actions>
                     <a-tooltip title="编辑">
-                      <Icon icon="ion:edit" :size="18" @click="showDrawer" />
+                      <Icon icon="ion:edit" :size="18" @click="handleEdit(item)" />
                     </a-tooltip>
                     <a-tooltip title="测试">
-                      <Icon icon="ant-design:bug-outlined" :size="18" @click="handleDebug" />
+                      <Icon icon="ant-design:bug-outlined" :size="18" @click="handleDebug(item)" />
                     </a-tooltip>
-                    <a-popconfirm title="确定删除此组件吗？" @confirm="confirm" @cancel="cancel">
+                    <a-popconfirm title="确定删除此组件吗？" @confirm="handleDeleteById(item)" @cancel="cancel">
                       <a-tooltip title="删除">
                         <Icon icon="ant-design:delete-outlined" :size="18" />
                       </a-tooltip>
                     </a-popconfirm>
                   </template>
-                  <div class="">
-                    <card-info :active-user="item.componenttype" new-user="999" />
+                  <div class="" v-if="item.status==1">
+                    <card-info :componentType="item.componentType" :componentId="item.id" :port="item.port" :state="true" />
+                  </div>
+                  <div class="" v-else>
+                    <card-info :componentType="item.componentType" :componentId="item.id" :port="item.port" :state="false" />
                   </div>
                 </a-card>
               </a-list-item>
@@ -278,6 +336,8 @@
         font-size: 16px;
         font-weight: 500;
         color: @text-color;
+        display:flex;
+        align-items:initial;
         .icon {
           margin-top: -5px;
           margin-right: 10px;
@@ -328,8 +388,8 @@
   }
 
   ::v-deep span.iconify {
-    min-width: 24px;
-    min-height: 24px;
+    min-width: 36px;
+    min-height: 36px;
     background: #ccc;
   }
 
@@ -337,7 +397,8 @@
     background-color: #fff;
     border-radius: 2px;
     width: 100%;
-    height: 190px;
+    height: 198px;
+    margin-bottom: -10px;
     color: rgba(0, 0, 0, 0.45);
   }
 </style>

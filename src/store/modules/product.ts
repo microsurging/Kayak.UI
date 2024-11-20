@@ -7,6 +7,7 @@ import {
   productByIdParams,
   editProductModel,
   editParams,
+  prdAggregationModel
 } from '/@/api/devicemange/model/productModel';
 import {
   getpageasyncApi,
@@ -17,8 +18,10 @@ import {
   addApi,
   openApi,
   stopApi,
+  getproductstatisticsApi,
   validateApi,
   deletebyIdApi,
+  getproductbyidApi
 } from '/@/api/devicemange/product';
 export const useProductStore = defineStore({
   id: 'app-product',
@@ -38,6 +41,24 @@ export const useProductStore = defineStore({
       try {
         const { ...productPageParams } = params;
         const data = await getaggregationpageasyncApi(productPageParams);
+        return data;
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    async getproductbyidApi(
+      params: { id: number },
+    ): Promise<prdAggregationModel | null> {
+      try {
+        const data = await getproductbyidApi(params);
+        return data.result;
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    async getproductstatisticsApi(): Promise<any> {
+      try {
+        const data = await getproductstatisticsApi();
         return data;
       } catch (error) {
         return Promise.reject(error);

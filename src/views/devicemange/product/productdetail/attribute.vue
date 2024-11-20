@@ -2,59 +2,100 @@
   <div class="m-4 desc-wrap">
     <BasicTable @register="registerTable">
       <template #action="{ record }">
-        <TableAction
-          :actions="[
+        <TableAction :actions="[
             {
               label: '编辑',
-              tooltip: '编辑注册中心',
+              tooltip: '编辑属性',
               onClick: handleEdit.bind(null, record),
-              auth: 'super', // 根据权限控制是否显示: 无权限，不显示
             },
             {
               label: '删除',
-              onClick: handleDelete.bind(null, record),
-              tooltip: '删除此注册中心',
-              auth: 'super', // 根据权限控制是否显示: 有权限，会显示
+              tooltip: '删除此属性',
               popConfirm: {
-                title: '是否删除此注册中心',
+                title: '是否删除此属性',
                 confirm: handleDelete.bind(null, record),
               },
             },
-          ]"
-        />
+            {
+                label: '配置阈值',
+                tooltip: '配置阈值',
+                onClick: showModal.bind(null, record),
+             },
+          ]" />
       </template>
       <template #toolbar>
-        <a-input-search placeholder="请输入属性信息" style="width: 200px" />
+        <a-input-search placeholder="请输入属性信息" v-model:value="inputText" @change="getPage" style="width: 200px" />
 
         <div style="width: 100%; text-align: right">
           <a-space>
             <a-button> 导入属性 </a-button>
-            <a-button type="primary" preIcon="mdi:plus"> 新增 </a-button>
+            <a-button type="primary" preIcon="mdi:plus" @click="showDrawer"> 新增 </a-button>
           </a-space>
         </div>
       </template>
     </BasicTable>
-    <EditInfo @register="registerModal" @success="handleModalSuccess" :minHeight="200" />
+    <EditInfo @register="registerDrawer" @success="handleSuccess" :minHeight="200" />
+    <EditThreshold @register="registerModal" :minHeight="300" />
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, ref } from 'vue';
+  import { defineComponent, onMounted, ref, unref } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getServiceNodeColumns, getAttributeData } from '/@/views/devicemange/product/data';
+  import { getAttributeColumns } from '../data';
   import { PageWrapper } from '/@/components/Page';
-  import { useModal } from '/@/components/Modal';
+  import { usepropertyConfigStore } from '/@/store/modules/propertyConfigure';
+  import { useDrawer } from '/@/components/Drawer';
   import { Space } from 'ant-design-vue';
-  import EditInfo from '/@/views/servicemanage/serviceroute/components/editservicenode.vue';
+  import EditInfo from '../components/editProp.vue';
+  import { useModal } from '/@/components/Modal';
+  import EditThreshold from '../components/editThreshold.vue';
+  import { useRouter } from 'vue-router';
   export default defineComponent({
-    components: { BasicTable, PageWrapper, TableAction, EditInfo, Space },
+    components: { BasicTable, PageWrapper, TableAction, EditInfo, Space, EditThreshold },
     setup() {
       const striped = ref(false);
-      const canResize = ref(false);
+      const canResize = ref(true);
       const pagination = ref<any>(true);
+      const [registerDrawer, { openDrawer }] = useDrawer();
+      const propertyConfigStore = usepropertyConfigStore();
       const [registerModal, { openModal }] = useModal();
-      const [registerTable] = useTable({
-        dataSource: getAttributeData(),
-        columns: getServiceNodeColumns(),
+      const correlationFrom = "product";
+      const router = useRouter();
+      const { currentRoute } = router;
+      const correlationId = unref(currentRoute).query.id?.valueOf();
+      const productCode= unref(currentRoute).query.productCode?.valueOf();
+      const JsonData = ref([]);
+      const page: any = ref(1);
+      const pageSize: any = ref(10); 
+      const inputText = ref('');
+      const total: any = ref(null);
+      const paginationProp = ref({
+        pageSize: pageSize,
+        current: page,
+        total,
+      });
+      const showDrawer = () => {
+        openDrawer(true, { 
+          correlationId: correlationId,
+          correlationFrom: correlationFrom,
+          isUpdate: false,
+        });
+      };
+      function handleEdit(record: Recordable) {
+        openDrawer(true, {
+          record,
+          isUpdate: true,
+        });
+      }
+      const [registerTable, methods] = useTable({
+        dataSource: JsonData,
+        columns: getAttributeColumns(),
+        onChange: (pagination) => {
+          page.value = pagination.current;
+          pageSize.value = pagination.pageSize;
+          handle();
+          getPage();
+        },
         canResize: canResize,
         useSearchForm: false,
         striped: striped,
@@ -67,21 +108,60 @@
           slots: { customRender: 'action' },
         },
       });
-
-      function handleEdit(record: Recordable) {
+      const showModal = (record: Recordable) => {
         openModal(true, {
           record,
-          isUpdate: true,
+          productCode:productCode,
+          isUpdate: false,
         });
+      };
+
+      function getPage() {
+        propertyConfigStore
+          .getAggregationPageAsyncApi({
+            query: {
+              correlationId: correlationId ?? 0,
+              correlationFrom: correlationFrom,
+              inputText: inputText.value, 
+              page: page.value,
+              pageSize: pageSize.value,
+            },
+          })
+          .then((response) => {
+            JsonData.value = response.result.items;
+            total.value = response.result.total;
+            handle();
+          });
       }
-      function handleModalSuccess() {}
+      function handle() {
+        methods.setPagination(paginationProp.value);
+      }
+      async function handleSuccess() {
+        await getPage(); 
+      }
       function handleDelete(record: Recordable) {
-        console.log('点击了删除', record);
+        var ids = [];
+        ids.push(record.id);
+        propertyConfigStore
+          .deletebyIdApi({
+            ids: ids,
+          })
+          .then((response) => {
+             getPage();
+          });
       }
+      onMounted(async () => {
+        await getPage(); 
+      });
       return {
         confirm,
+        showDrawer,
+        registerDrawer,
+        inputText,
         registerModal,
-        handleModalSuccess,
+        showModal,
+        getPage,
+        handleSuccess,
         registerTable,
         handleEdit,
         handleDelete,
@@ -91,6 +171,9 @@
 </script>
 
 <style lang="less" scoped>
+  ::v-deep .ant-tag {
+    margin-right: 8px;
+  }
   ::v-deep .vben-basic-table .vben-basic-table-title {
     color: rgba(0, 0, 0, 0.85);
     font-weight: bold;

@@ -21,7 +21,7 @@
           :actions="[
             {
               label: '编辑',
-              tooltip: '编辑注册中心',
+              tooltip: '编辑字典',
               icon: 'clarity:note-edit-line',
               onClick: handleEdit.bind(null, record),
             },
@@ -85,12 +85,12 @@
         total,
       });
 
-      emitter.on('selectChanged', (value: string) => {
+      emitter.on('dicselectChanged', (value: string) => {
         parentCode.value = value;
         GetPage();
       });
       onBeforeUnmount(() => {
-        emitter.off('selectChanged', (v: string) => {}); //关闭
+        emitter.off('dicselectChanged', (v: string) => {}); //关闭
       });
       function getFormConfig(): Partial<FormProps> {
         return {
@@ -163,8 +163,7 @@
       function handle() {
         methods.setPagination(paginationProp.value);
       }
-      const confirm = (e) => {
-        console.log(e);
+      const confirm = (e) => { 
         return new Promise((resolve) => {
           setTimeout(() => resolve(true), 3000);
         });
@@ -179,12 +178,7 @@
           parentCode: unref(parentCode),
         });
       };
-      function handleAddGateway(record: Recordable) {
-        openModal(true, {
-          isUpdate: false,
-          parentId: record.CategoryId,
-        });
-      }
+      
       function handleEdit(record: Recordable) {
         openModal(true, {
           record,
@@ -222,7 +216,8 @@
         var ids = [];
         ids.push(record.Id);
         sysDicManageStore
-          .deletebyIdApi({
+          .aggregationDeletebyIdApi({
+            parentCode: record.ParentCode,
             ids: ids,
           })
           .then((response) => {
@@ -235,8 +230,7 @@
         confirm,
         registerModal,
         cancel,
-        showAddModal,
-        handleAddGateway,
+        showAddModal, 
         handleModalSuccess,
         registerTable,
         handleEdit,

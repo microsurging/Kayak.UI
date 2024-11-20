@@ -31,6 +31,7 @@ export interface serviceStatisticsModel {
 
 export interface serviceRoutePageParams {
   query: {
+    mode: string | null;
     registryCenterType: number | null;
     serviceRoute: number | null;
     page: number;

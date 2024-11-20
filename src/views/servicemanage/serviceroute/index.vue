@@ -11,41 +11,63 @@
         </a-col>
         <a-col :span="3" :class="`${prefixCls}__top-col`">
           <div>全部服务</div>
-          <p
-            ><CountTo :startVal="1" :endVal="statistics.serviceTotal" style="padding-left: 5px"
-          /></p>
+          <p><a-button type="link" @click="GetPage('None')">
+  <CountTo :startVal="1" :endVal="statistics.serviceTotal" style="padding-left: 5px" />
+            </a-button>
+</p>
         </a-col>
         <a-col :span="4" :class="`${prefixCls}__top-col`">
           <div>正常运行</div>
-          <p
-            ><CountTo :startVal="1" :endVal="statistics.serviceRunCount" style="padding-left: 5px"
-          /></p>
+          <p><a-button type="link" @click="GetPage('Run')"><CountTo :startVal="1" :endVal="statistics.serviceRunCount" style="padding-left: 5px" /></a-button></p>
         </a-col>
         <a-col :span="4" :class="`${prefixCls}__top-col`">
           <div>异常运行</div>
-          <p
-            ><CountTo
-              :startVal="1"
-              :endVal="statistics.serviceAbnormalCount"
-              style="padding-left: 5px"
-          /></p>
+          <p><a-button type="link"  @click="GetPage('Abnormal')">
+  <CountTo :startVal="1"
+           :endVal="statistics.serviceAbnormalCount"
+           style="padding-left: 5px" />
+            </a-button>
+</p>
         </a-col>
         <a-col :span="4" :class="`${prefixCls}__top-col`">
           <div>服务节点</div>
-          <p
-            ><CountTo :startVal="1" :endVal="statistics.serviceNodeCount" style="padding-left: 5px"
-          /></p>
+          <p><a-button type="link">
+  <CountTo :startVal="1" :endVal="statistics.serviceNodeCount" style="padding-left: 5px" />
+</a-button>
+</p>
         </a-col>
       </a-row>
     </div>
     <div :class="`${prefixCls}__content`">
       <BasicTable @register="registerTable" style="min-height: 560px">
         <template #action="{ record }">
-          <TableAction :actions="[ :actions="[ { label: '查看', tooltip: '查看详情', onClick:
-          handleDetail.bind(null, record), }, { label: '编辑', tooltip: '编辑注册中心', onClick:
-          handleEdit.bind(null, record), }, { label: '删除', onClick: handleDelete.bind(null,
-          record), ifShow: record.isDelete, tooltip: '删除此注册中心', popConfirm: { title:
-          '是否删除此注册中心', confirm: handleDelete.bind(null, record), }, }, ]" />
+
+          <TableAction 
+            :actions="[
+                  {
+              label: '查看',
+              tooltip: '查看详情',
+              onClick: handleDetail.bind(null,record), 
+
+            },
+                 {
+              label: '编辑',
+              tooltip: '编辑注册中心',
+              onClick: handleEdit.bind(null, record), 
+
+            },
+            {
+              label: '删除',
+              ifShow:record.isDelete,
+              onClick: handleDelete.bind(null, record),
+              tooltip: '删除此注册中心', 
+                popConfirm: {
+                title: '是否删除此注册中心',
+                confirm: handleDelete.bind(null, record),
+
+       },
+     }, 
+          ]" />
         </template>
         <template #toolbar>
           <a-button type="primary" preIcon="mdi:plus" @click="showAddModal"> 新建 </a-button>
@@ -58,7 +80,7 @@
 <script lang="ts">
   import { defineComponent, onMounted, unref, ref } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { getBasicColumns, getFormConfig, getBasicData } from './data';
+  import { getBasicColumns, getFormConfig } from './data';
   import { PageWrapper } from '/@/components/Page';
   import { useModal } from '/@/components/Modal';
   import EditInfo from './components/edit.vue';
@@ -77,7 +99,6 @@
       const router = useRouter();
       const selectDefValue = ref(null);
       const selectName = ref(null);
-
       const statistics = ref({});
       const regCenterDatas = ref([]);
       const JsonData = ref([]);
@@ -94,12 +115,13 @@
         dataSource: JsonData,
         columns: getBasicColumns(),
         canResize: canResize,
+        resizeHeightOffset: 20,
         useSearchForm: false,
         onChange: (pagination) => {
           page.value = pagination.current;
           pageSize.value = pagination.pageSize;
           handle();
-          GetPage();
+          GetPage(null);
         },
         formConfig: getFormConfig(),
         striped: striped,
@@ -128,8 +150,8 @@
           selectName.value = list[0].Name;
           for (var i = 0; i < list?.length; i++) {
             regCenterDatas.value.push({
-              value: list[i].Id,
-              label: list[i].Name,
+              value:list[i].Id,
+              label:list[i].Name,
             });
           }
         }
@@ -142,10 +164,11 @@
         statistics.value = model.result;
       }
 
-      async function GetPage() {
+      async function GetPage(mode:string |null) {
         serviceRouteStore
           .getPageAsync({
             query: {
+              mode: mode,
               registryCenterType: unref(selectDefValue),
               page: page.value,
               pageSize: pageSize.value,
@@ -203,7 +226,7 @@
       };
       async function handleModalSuccess() {
         await GetStatistics();
-        await GetPage();
+        await GetPage(null);
       }
       function handleDelete(record: Recordable) {
         console.log('点击了删除', record);
@@ -211,7 +234,7 @@
       onMounted(async () => {
         await getList();
         await GetStatistics();
-        await GetPage();
+        await GetPage(null);
       });
       return {
         prefixCls: 'list-basic',
@@ -220,6 +243,7 @@
         statistics,
         selectDefValue,
         cancel,
+        GetPage,
         regCenterDatas,
         showAddModal,
         handleAddGateway,
@@ -250,7 +274,11 @@
           color: rgba(0, 0, 0, 0.45);
         }
 
-        p {
+  p {
+   > .ant-btn{
+    font-size: 24px;
+    line-height: 0px;
+  }
           margin: 0;
           font-size: 24px;
           line-height: 32px;

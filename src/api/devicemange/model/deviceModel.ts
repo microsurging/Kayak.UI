@@ -1,5 +1,3 @@
-import { Data } from 'ant-design-vue/es/_util/type';
-
 export interface deviceByIdParams {
   ids: [];
 }
@@ -24,7 +22,21 @@ export interface deviceModel {
   productCode: string;
   code: string;
   name: string;
-  createDate: Data;
+  createDate: Date;
+  remark: string;
+}
+
+export interface deviceAggModel {
+  id: number;
+  productCode: string;
+  code: string;
+  name: string;
+  productName: string;
+  gatewayName: string;
+  connProtocol: string;
+  protocolName: string;
+  ipAddress: string;
+  createDate: Date;
   remark: string;
 }
 

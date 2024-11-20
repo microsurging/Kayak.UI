@@ -1,6 +1,6 @@
 <template>
   <PageWrapper
-    title="服务Id:Surging.IModuleServices.Common.IUserService.GetUser_user"
+    :title="title"
     contentBackground
   >
     <template #subTitle>
@@ -113,6 +113,8 @@
         router,
         regCenterName,
         components,
+        title: "服务Id:" + serviceId,
+        serviceId,
         actKey,
         compName,
       };
@@ -123,5 +125,8 @@
 <style lang="less" scoped>
   ::v-deep .vben-page-wrapper-content {
     margin: 10px;
+  }
+  ::v-deep .vben-page-wrapper-content {
+    min-height: 632px; /* 设置最小高度 */
   }
 </style>

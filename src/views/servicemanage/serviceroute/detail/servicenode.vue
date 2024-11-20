@@ -30,7 +30,6 @@
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import {
     getServiceNodeColumns,
-    getServiceNodeData,
   } from '/@/views/servicemanage/serviceroute/data';
   import { PageWrapper } from '/@/components/Page';
   import { useRouter } from 'vue-router';
@@ -77,7 +76,7 @@
           });
       }
       const striped = ref(false);
-      const canResize = ref(false);
+      const canResize = ref(true);
       const pagination = ref<any>(true);
       const [registerModal, { openModal }] = useModal();
       const [registerTable, methods] = useTable({
@@ -90,6 +89,7 @@
           GetPage();
         },
         canResize: canResize,
+        resizeHeightOffset: 20,
         useSearchForm: false,
         striped: striped,
         showIndexColumn: false,
